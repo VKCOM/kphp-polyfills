@@ -1,0 +1,15 @@
+{
+    "name": "vkcom/kphp-polyfills",
+    "description": "PHP implementations of functions supported by KPHP natively",
+    "require": {
+        "rybakit/msgpack": "^0.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "KPHP\\": "src/"
+        },
+        "files": [
+            "kphp_polyfills.php"
+        ]
+    }
+}
