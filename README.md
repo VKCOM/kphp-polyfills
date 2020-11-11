@@ -6,6 +6,8 @@ Without polyfills, your code can be compiled, but can't be run by plain PHP.
 
 ## How to install and use this package
 
+Note: polyfills will be available on packagist soon, making the installation a one-line command; for now, use this:
+
 * In a PHP project, create `composer.json` with the following contents (if exists, manually merge):  
 ```json
 {
