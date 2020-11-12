@@ -1,6 +1,7 @@
 {
     "name": "vkcom/kphp-polyfills",
     "description": "PHP implementations of functions supported by KPHP natively",
+    "license": "GPL-3.0-or-later",
     "require": {
         "rybakit/msgpack": "^0.7.0"
     },
