@@ -6,24 +6,7 @@ Without polyfills, your code can be compiled, but can't be run by plain PHP.
 
 ## How to install and use this package
 
-Note: polyfills will be available on packagist soon, making the installation a one-line command; for now, use this:
-
-* In a PHP project, create `composer.json` with the following contents (if exists, manually merge):  
-```json
-{
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:VKCOM/kphp-polyfills.git"
-    }
-  ],
-  "require": {
-    "vkcom/kphp-polyfills": "^1.0.0"
-  }
-}
-```
-
-* Run `composer install`; ensure that *vendor/* folder contains this lib.
+* Run `composer require vkcom/kphp-polyfills`
 
 * If it's your first installed package, call composer autoload:
 ```php
