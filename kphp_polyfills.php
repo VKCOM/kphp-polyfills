@@ -65,7 +65,8 @@ function not_null($any_value) {
   if ($any_value === null) {
     warning("Passed 'null' to not_null() in PHP");
   }
-  return $any_value;
+  // turn off PhpStorm native inferring
+  return ${'any_value'};
 }
 
 /**
@@ -77,7 +78,8 @@ function not_false($any_value) {
   if ($any_value === false) {
     warning("Passed 'false' to not_false() in PHP");
   }
-  return $any_value;
+  // turn off PhpStorm native inferring
+  return ${'any_value'};
 }
 
 
