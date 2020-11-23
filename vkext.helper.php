@@ -12,6 +12,9 @@
 /** @noinspection NoTypeDeclarationInspection */
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
+/** @noinspection PhpFullyQualifiedNameUsageInspection */
+/** @noinspection PhpUndefinedClassInspection */
 
 /*
  * This file contains declarations of KPHP native functions that are written in C (vkext.so - PHP extension).
@@ -509,7 +512,7 @@ function vkext_prepare_stats() {
 
 /**
  * @param int $conn \RpcConnection
- * @param @tl\RpcFunction $request
+ * @param \VK\TL\RpcFunction $request
  * @param float $timeout
  * @return int
  */
@@ -519,7 +522,7 @@ function typed_rpc_tl_query_one($conn, $request, $timeout = -1.0) {
 
 /**
  * @param int $conn
- * @param @tl\RpcFunction[] $requests
+ * @param \VK\TL\RpcFunction[] $requests
  * @param float $timeout
  * @return array
  */
@@ -529,7 +532,7 @@ function typed_rpc_tl_query($conn, array $requests, $timeout = 0.0) {
 
 /**
  * @param int $query_id
- * @return @tl\RpcResponse
+ * @return \VK\TL\RpcResponse
  */
 function typed_rpc_tl_query_result_one($query_id) {
   return null;
@@ -555,7 +558,7 @@ function set_fail_rpc_on_int32_overflow(bool $fail_rpc): bool {
 /**
  * Deserializes a server RPC request to a corresponding typed TL class.
  * NB! Works only in KPHP - not in PHP - when it is launched as RPC server!
- * @return @tl\RpcFunction
+ * @return \VK\TL\RpcFunction
  */
 function rpc_server_fetch_request() {
   return null;
@@ -564,7 +567,7 @@ function rpc_server_fetch_request() {
 /**
  * Serializes a server RPC response based on TL scheme and stores it in RPC buffer.
  * NB! Works only in KPHP - not in PHP - when it is launched as RPC server!
- * @param @tl\RpcFunctionReturnResult $response
+ * @param \VK\TL\RpcFunctionReturnResult $response
  */
 function rpc_server_store_response($response) {
 }
