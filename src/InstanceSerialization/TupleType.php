@@ -82,7 +82,7 @@ class TupleType extends PHPDocType {
     }
   }
 
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValueImpl($value, UseResolver $use_resolver): void {
     $value_verifier = static function(PHPDocType $type, $value) use ($use_resolver) {
       $type->verifyValue($value, $use_resolver);
     };
