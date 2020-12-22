@@ -59,7 +59,7 @@ class InstanceType extends PHPDocType {
    * @return void
    * @throws ReflectionException
    */
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValueImpl($value, UseResolver $use_resolver): void {
     if ($value === null) {
       return;
     }

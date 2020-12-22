@@ -13,6 +13,7 @@ use MessagePack\Packer;
 use MessagePack\TypeTransformer\CanPack;
 use ReflectionException;
 use RuntimeException;
+use MessagePack\PackOptions;
 
 class ClassTransformer implements CanPack {
   /** @var int */
@@ -29,6 +30,10 @@ class ClassTransformer implements CanPack {
    * @throws RuntimeException
    */
   public function pack(Packer $packer, $instance): ?string {
+    if ($instance instanceof DeepForceFloat32) {
+      $packer = (new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_FLOAT32))->extendWith(new ClassTransformer());
+      return $packer->pack($instance->value);
+    }
     $instance_parser = new InstanceParser($instance);
     return $packer->pack($instance_parser->tags_values);
   }

@@ -15,7 +15,7 @@ use ReflectionProperty;
 use RuntimeException;
 
 class InstanceParser {
-  /**@var mixed[] */
+  /**@var (mixed|DeepForceFloat32)[] */
   public $tags_values = [];
 
   /** @var InstanceMetadata */
@@ -38,7 +38,7 @@ class InstanceParser {
 
     foreach ($this->instance_metadata->names as $i => $name) {
       $this->tags_values[] = $this->instance_metadata->field_ids[$i];
-      $current_value = is_object($instance) ? $this->getValue($this->instance_metadata->reflection_of_instance->getProperty($name), (object)$instance) : null;
+      $current_value = is_object($instance) ? $this->getValue($i, (object)$instance) : null;
       $this->tags_values[] = $current_value;
 
       if (is_object($instance)) {
@@ -105,12 +105,20 @@ class InstanceParser {
     return $instance;
   }
 
-  private function getValue(ReflectionProperty $property, object $instance) {
+  /**
+   * @return mixed|DeepForceFloat32
+   * @throws ReflectionException
+   */
+  private function getValue(int $property_id, object $instance) {
+    $property = $this->instance_metadata->reflection_of_instance->getProperty($this->instance_metadata->names[$property_id]);
     $is_accessible = $property->isPrivate() || $property->isProtected();
     $property->setAccessible(true);
     $result = $property->getValue($instance);
     $property->setAccessible($is_accessible);
 
+    if ($this->instance_metadata->as_float32[$property_id]) {
+      return new DeepForceFloat32($result);
+    }
     return $result;
   }
 

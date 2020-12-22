@@ -67,7 +67,7 @@ class PrimitiveType extends PHPDocType {
     return $this->type;
   }
 
-  public function verifyValue($value, UseResolver $_): void {
+  public function verifyValueImpl($value, UseResolver $_): void {
     $true_type = $this->getPHPCompliantType();
     if (gettype($value) === $true_type) {
       if (($this->type === 'true' && $value !== true) ||

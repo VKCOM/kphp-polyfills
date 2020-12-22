@@ -85,7 +85,7 @@ class ArrayType extends PHPDocType {
     return $res;
   }
 
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValueImpl($value, UseResolver $use_resolver): void {
     $value_verifier = function($value) use ($use_resolver) {
       $this->inner_type->verifyValue($value, $use_resolver);
       return true;

@@ -36,7 +36,7 @@ class OrType extends PHPDocType {
     }
   }
 
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValueImpl($value, UseResolver $use_resolver): void {
     try {
       $this->type1->verifyValue($value, $use_resolver);
     } catch (Throwable $_) {

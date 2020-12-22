@@ -65,7 +65,7 @@ abstract class PHPDocType {
       $res = new ArrayType($res, $cnt_arrays);
     }
 
-    /**@var $or_type OrType */
+    /**@var OrType */
     $or_type = OrType::parse($str);
     if ($or_type) {
       $or_type->type1 = $res;
@@ -95,7 +95,20 @@ abstract class PHPDocType {
    * @param UseResolver $use_resolver
    * @throws RuntimeException
    */
-  abstract public function verifyValue($value, UseResolver $use_resolver): void;
+  public function verifyValue($value, UseResolver $use_resolver): void {
+    if ($value instanceof DeepForceFloat32) {
+      $this->verifyValueImpl($value->value, $use_resolver);
+    } else {
+      $this->verifyValueImpl($value, $use_resolver);
+    }
+  }
+
+  /**
+   * @param mixed       $value
+   * @param UseResolver $use_resolver
+   * @throws RuntimeException
+   */
+  abstract public function verifyValueImpl($value, UseResolver $use_resolver): void;
 
   abstract protected function hasInstanceInside(): bool;
 }

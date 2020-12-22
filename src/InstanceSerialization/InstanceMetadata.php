@@ -31,7 +31,10 @@ class InstanceMetadata {
   public $use_resolver = null;
 
   /** @var int[] */
-  public $field_ids;
+  public $field_ids = [];
+
+  /**@var bool[] */
+  public $as_float32 = [];
 
   /**
    * @throws ReflectionException
@@ -86,6 +89,8 @@ class InstanceMetadata {
       $this->field_ids[] = $matches[1];
 
       $this->names[] = $property->getName();
+
+      $this->as_float32[] = strpos($property->getDocComment(), '@kphp-serialized-float32') !== false;
 
       preg_match('/@var\s+([^\n]+)/', $property->getDocComment(), $matches);
       assert(count($matches) > 1);
