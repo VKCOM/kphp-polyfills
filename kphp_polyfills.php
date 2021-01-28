@@ -937,6 +937,13 @@ function warning($str) {
 }
 
 /**
+ * Produces an user error and interrupts the script execution
+ */
+function critical_error(string $message) {
+  trigger_error($message, E_USER_ERROR);
+}
+
+/**
  * Useful for dev purposes: this callback is invoked when a runtime warning occurs.
  * It can be shown on screen for developer, for example.
  * Do not use it in production! Use json log analyzer and trace C++->PHP mapper instead.
