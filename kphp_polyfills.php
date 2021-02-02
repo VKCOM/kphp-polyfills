@@ -309,6 +309,13 @@ function get_running_fork_id(): int {
   return 0;
 }
 
+function set_wait_all_forks_on_finish(bool $wait = true): bool {
+  static $wait_all_forks = false;
+  $prev = $wait_all_forks;
+  $wait_all_forks = $wait;
+  return $prev;
+}
+
 
 #endregion
 
