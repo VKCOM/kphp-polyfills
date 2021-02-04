@@ -419,11 +419,41 @@ function array_filter_by_key(array $array, callable $callback) {
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
- * @param int   $str_keys_num Amoutn of string keys
+ * @param int   $str_keys_num Amount of string keys
  * @param bool  $is_vector    Should it be a vector (if string keys amount is 0)
  */
 function array_reserve(&$arr, $int_keys_num, $str_keys_num, $is_vector) {
   // in PHP does nothing
+}
+
+/**
+ * More useful @see array_reserve() alias for map with string keys
+ *
+ * @param array $arr          Target array (vector/map)
+ * @param int   $capacity     Amount of the elements (for vector) or int keys (for map with int keys)
+ */
+function array_reserve_vector(&$arr, $capacity) {
+    // in PHP does nothing
+}
+
+/**
+ * More useful @see array_reserve() alias for map with int keys
+ *
+ * @param array $arr          Target array (vector/map)
+ * @param int   $int_keys_num Amount of int keys
+ */
+function array_reserve_map_int_keys(&$arr, $int_keys_num) {
+    // in PHP does nothing
+}
+
+/**
+ * More useful @see array_reserve() alias for map with string keys
+ *
+ * @param array $arr          Target array (vector/map)
+ * @param int   $str_keys_num Amoutn of string keys
+ */
+function array_reserve_map_string_keys(&$arr, $str_keys_num) {
+    // in PHP does nothing
 }
 
 /**
