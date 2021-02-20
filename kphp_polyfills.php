@@ -413,12 +413,41 @@ function array_filter_by_key(array $array, callable $callback) {
  * A useful function to reserve array memory - if you know in advance, how much elements will be inserted to it.
  * Effectice especially for vectors, as there will be no reallocations on insertion.
  *
+ * This is a low level function. For more user-friendly API check following aliases:
+ * @see array_reserve_vector
+ * @see array_reserve_map_int_keys
+ * @see array_reserve_map_string_keys
+ *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
  * @param int   $str_keys_num Amoutn of string keys
  * @param bool  $is_vector    Should it be a vector (if string keys amount is 0)
  */
 function array_reserve(&$arr, $int_keys_num, $str_keys_num, $is_vector) {
+  // in PHP does nothing
+}
+
+/**
+ * Alias for `array_reserve($arr, $capacity, 0, true)`.
+ * @see array_reserve
+ */
+function array_reserve_vector(array &$arr, int $capacity) {
+  // in PHP does nothing
+}
+
+/**
+ * Alias for `array_reserve($arr, $capacity, 0, false)`.
+ * @see array_reserve
+ */
+function array_reserve_map_int_keys(array &$arr, int $capacity) {
+  // in PHP does nothing
+}
+
+/**
+ * Alias for `array_reserve($arr, 0, $capacity, false)`.
+ * @see array_reserve
+ */
+function array_reserve_map_string_keys(array &$arr, int $capacity) {
   // in PHP does nothing
 }
 
