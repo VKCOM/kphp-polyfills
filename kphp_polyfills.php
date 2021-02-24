@@ -337,11 +337,15 @@ function array_first_key(array $a) {
 
 /**
  * array_first_value(T[]) : T
+ *
+ * Note that the result can differ between PHP and KPHP for an empty array:
+ * * In PHP the function returns `null` regardless the array type, so actual return type is `?T`.
+ * * In KPHP the function always returns result of type `T`.
+ *
  * @ return can't be expressed in phpdoc, done via KPHPStorm plugin for IDE
  */
 function array_first_value(array $a) {
-  reset($a);
-  return current($a);
+  return $a ? reset($a) : null;
 }
 
 /**
@@ -354,11 +358,15 @@ function array_last_key(array $a) {
 
 /**
  * array_last_value(T[]) : T
+ *
+ * Note that the result can differ between PHP and KPHP for an empty array:
+ * * In PHP the function returns `null` regardless the array type, so actual return type is `?T`.
+ * * In KPHP the function always returns result of type `T`.
+ *
  * @ return can't be expressed in phpdoc, done via KPHPStorm plugin for IDE
  */
 function array_last_value(array $a) {
-  end($a);
-  return current($a);
+  return $a ? end($a) : null;
 }
 
 /**
