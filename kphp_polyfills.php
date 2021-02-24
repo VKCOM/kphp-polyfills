@@ -332,11 +332,7 @@ function array_first_key(array $a) {
  * @ return can't be expressed in phpdoc, done via KPHPStorm plugin for IDE
  */
 function array_first_value(array $a) {
-  if (!$a) {
-    return null;
-  }
-  reset($a);
-  return current($a);
+  return $a ? reset($a) : null;
 }
 
 /**
@@ -357,11 +353,7 @@ function array_last_key(array $a) {
  * @ return can't be expressed in phpdoc, done via KPHPStorm plugin for IDE
  */
 function array_last_value(array $a) {
-  if (!$a) {
-    return null;
-  }
-  end($a);
-  return current($a);
+  return $a ? end($a) : null;
 }
 
 /**
