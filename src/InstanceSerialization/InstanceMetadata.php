@@ -92,13 +92,22 @@ class InstanceMetadata {
 
       $this->as_float32[] = strpos($property->getDocComment(), '@kphp-serialized-float32') !== false;
 
+      // get type either from @var or from php 7.4 field type hint
+      $type = '';
       preg_match('/@var\s+([^\n]+)/', $property->getDocComment(), $matches);
-      assert(count($matches) > 1);
-      $type     = (string)$matches[1];
+      if (count($matches) > 1) {
+        $type = (string)$matches[1];
+      } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
+        $type = ($property->getType()->allowsNull() ? '?' : '') . $property->getType();
+      }
+      if ($type === '') {
+        throw new RuntimeException("Can't detect type of field {$property->getName()}");
+      }
+
       $type_copy = $type;
       $parsed_phpdoc = PHPDocType::parse($type_copy);
       if ($parsed_phpdoc === null) {
-        throw new RuntimeException("Can't parse phpdoc: {$type}");
+        throw new RuntimeException("Can't parse phpdoc of field {$property->getName()}: {$type}");
       }
       $this->types[] = $type;
       $this->phpdoc_types[] = $parsed_phpdoc;
