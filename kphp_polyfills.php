@@ -449,8 +449,8 @@ function array_reserve(&$arr, $int_keys_num, $str_keys_num, $is_vector) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys:
- *  array_reserve($arr, $capacity, 0, true)
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, true).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $capacity     Amount of the elements (for vector) or int keys (for map with int keys)
@@ -460,8 +460,8 @@ function array_reserve_vector(&$arr, $capacity) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with int keys:
- *  array_reserve($arr, $capacity, 0, false)
+ * More useful @see array_reserve() alias for map with int keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, false).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
@@ -471,8 +471,8 @@ function array_reserve_map_int_keys(&$arr, $int_keys_num) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys
- *  array_reserve($arr, 0, $capacity, false)
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, 0, $capacity, false).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $str_keys_num Amount of string keys
