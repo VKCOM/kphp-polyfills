@@ -432,7 +432,12 @@ function array_filter_by_key(array $array, callable $callback) {
 
 /**
  * A useful function to reserve array memory - if you know in advance, how much elements will be inserted to it.
- * Effectice especially for vectors, as there will be no reallocations on insertion.
+ * Effective especially for vectors, as there will be no reallocation on insertion.
+ *
+ * Note: This is a low level function. For more user-friendly API check following aliases:
+ * @see array_reserve_vector
+ * @see array_reserve_map_int_keys
+ * @see array_reserve_map_string_keys
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
@@ -440,11 +445,12 @@ function array_filter_by_key(array $array, callable $callback) {
  * @param bool  $is_vector    Should it be a vector (if string keys amount is 0)
  */
 function array_reserve(&$arr, $int_keys_num, $str_keys_num, $is_vector) {
-  // in PHP does nothing
+    // in PHP does nothing
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, true).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $capacity     Amount of the elements (for vector) or int keys (for map with int keys)
@@ -454,7 +460,8 @@ function array_reserve_vector(&$arr, $capacity) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with int keys
+ * More useful @see array_reserve() alias for map with int keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, false).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
@@ -464,10 +471,11 @@ function array_reserve_map_int_keys(&$arr, $int_keys_num) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, 0, $capacity, false).
  *
  * @param array $arr          Target array (vector/map)
- * @param int   $str_keys_num Amoutn of string keys
+ * @param int   $str_keys_num Amount of string keys
  */
 function array_reserve_map_string_keys(&$arr, $str_keys_num) {
     // in PHP does nothing
