@@ -37,7 +37,6 @@ class PrimitiveType extends PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
    * @return mixed
    * @throws RuntimeException
    */

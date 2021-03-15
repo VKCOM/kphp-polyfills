@@ -84,7 +84,6 @@ abstract class PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
    * @return mixed
    * @throws RuntimeException
    */
@@ -92,7 +91,6 @@ abstract class PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
    * @throws RuntimeException
    */
   public function verifyValue($value, UseResolver $use_resolver): void {
@@ -105,7 +103,6 @@ abstract class PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
    * @throws RuntimeException
    */
   abstract public function verifyValueImpl($value, UseResolver $use_resolver): void;

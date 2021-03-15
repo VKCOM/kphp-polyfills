@@ -29,12 +29,10 @@ class InstanceDeserializer {
   }
 
   /**
-   * @param array|null $unpacked_arr
-   * @return object|null
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function fromUnpackedArray($unpacked_arr): ?object {
+  public function fromUnpackedArray(?array $unpacked_arr): ?object {
     if ($unpacked_arr === null) {
       return null;
     }

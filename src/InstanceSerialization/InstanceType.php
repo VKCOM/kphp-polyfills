@@ -33,9 +33,8 @@ class InstanceType extends PHPDocType {
   }
 
   /**
-   * @param array|null  $value
-   * @param UseResolver $use_resolver
-   * @return object|null
+   * @param ?array $value
+   * @return ?object
    * @throws ReflectionException
    * @throws RuntimeException
    */
@@ -55,8 +54,6 @@ class InstanceType extends PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
-   * @return void
    * @throws ReflectionException
    */
   public function verifyValueImpl($value, UseResolver $use_resolver): void {

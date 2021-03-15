@@ -20,11 +20,7 @@ class TupleType extends PHPDocType {
     $this->types = $types;
   }
 
-  /**
-   * @param string $str
-   * @return PHPDocType|null
-   * @throws RuntimeException
-   */
+  /** @throws RuntimeException */
   protected static function parseImpl(string &$str): ?PHPDocType {
     if (!parent::removeIfStartsWith($str, '\\tuple(') && !parent::removeIfStartsWith($str, 'tuple(')) {
       return null;
@@ -53,9 +49,7 @@ class TupleType extends PHPDocType {
   }
 
   /**
-   * @param mixed       $value
-   * @param UseResolver $use_resolver
-   * @return array
+   * @param mixed $value
    * @throws RuntimeException
    */
   public function fromUnpackedValue($value, UseResolver $use_resolver): array {

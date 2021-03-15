@@ -12,7 +12,7 @@ namespace KPHP\InstanceSerialization;
 use RuntimeException;
 
 class ArrayType extends PHPDocType {
-  /**@var PHPDocType|null */
+  /**@var ?PHPDocType */
   public $inner_type = null;
 
   /**@var int */
@@ -50,9 +50,7 @@ class ArrayType extends PHPDocType {
   }
 
   /**
-   * @param array       $arr
-   * @param UseResolver $use_resolver
-   * @return array
+   * @param mixed[] $arr
    * @throws RuntimeException
    */
   public function fromUnpackedValue($arr, UseResolver $use_resolver): array {

@@ -9,12 +9,14 @@
 
 namespace KPHP\InstanceSerialization;
 
+use ReflectionException;
+
 class InstanceMetadataCache {
 
   /** @var InstanceMetadata[] */
   private static $instance_parsers = [];
 
-  /** @throws \ReflectionException */
+  /** @throws ReflectionException */
   public static function getInstanceMetadata(string $class_name): InstanceMetadata {
     if (!array_key_exists($class_name, self::$instance_parsers)) {
       self::$instance_parsers[$class_name] = new InstanceMetadata($class_name);
