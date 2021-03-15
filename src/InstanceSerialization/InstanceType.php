@@ -56,7 +56,7 @@ class InstanceType extends PHPDocType {
    * @param mixed       $value
    * @throws ReflectionException
    */
-  public function verifyValueImpl($value, UseResolver $use_resolver): void {
+  public function verifyValue($value, UseResolver $use_resolver): void {
     if ($value === null) {
       return;
     }
