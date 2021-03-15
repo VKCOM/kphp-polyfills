@@ -63,7 +63,7 @@ class TupleType extends PHPDocType {
   }
 
   /** @param mixed $value */
-  public function verifyValueImpl($value, UseResolver $use_resolver): void {
+  public function verifyValue($value, UseResolver $use_resolver): void {
     $this->checkValue($value);
     for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
       $this->types[$i]->verifyValue($value[$i], $use_resolver);

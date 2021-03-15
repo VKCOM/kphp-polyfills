@@ -32,11 +32,11 @@ class InstanceSerializer {
     $this->instance_metadata = InstanceMetadataCache::getInstanceMetadata(get_class($instance));
 
     foreach ($this->instance_metadata->fields_data as $field) {
-      $this->tags_values[] = $field->id;
       $current_value = $this->getValue($field, $instance);
-      $this->tags_values[] = $current_value;
-
       $this->checkTypeOf($field, $current_value);
+
+      $this->tags_values[] = $field->id;
+      $this->tags_values[] = $field->as_float32 ? new DeepForceFloat32($current_value) : $current_value;
     }
 
     ClassTransformer::$depth--;
@@ -56,17 +56,12 @@ class InstanceSerializer {
   }
 
   /**
-   * @return mixed|DeepForceFloat32
+   * @return mixed
    * @throws ReflectionException
    */
   private function getValue(FieldMetadata $field, object $instance) {
     $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
     $property->setAccessible(true);
-    $result = $property->getValue($instance);
-
-    if ($field->as_float32) {
-      return new DeepForceFloat32($result);
-    }
-    return $result;
+    return $property->getValue($instance);
   }
 }

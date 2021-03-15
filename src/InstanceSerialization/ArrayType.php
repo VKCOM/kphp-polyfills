@@ -80,7 +80,7 @@ class ArrayType extends PHPDocType {
     return $this->inner_type->hasInstanceInside();
   }
 
-  public function verifyValueImpl($array, UseResolver $use_resolver): void {
+  public function verifyValue($array, UseResolver $use_resolver): void {
     if (!is_array($array)) {
       throw new RuntimeException('not instance: ' . $array);
     }
@@ -90,7 +90,7 @@ class ArrayType extends PHPDocType {
         $this->inner_type->verifyValue($value, $use_resolver);
       } else {
         $this->cnt_arrays -= 1;
-        $this->verifyValueImpl($value, $use_resolver);
+        $this->verifyValue($value, $use_resolver);
         $this->cnt_arrays += 1;
       }
     }
