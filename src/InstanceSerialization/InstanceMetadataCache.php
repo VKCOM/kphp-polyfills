@@ -14,15 +14,8 @@ class InstanceMetadataCache {
   /** @var InstanceMetadata[] */
   private static $instance_parsers = [];
 
-  /**
-   * @param object|string $class_name
-   * @return InstanceMetadata
-   * @throws \ReflectionException
-   */
-  public static function getInstanceParser($class_name): InstanceMetadata {
-    if (is_object($class_name)) {
-      $class_name = get_class($class_name);
-    }
+  /** @throws \ReflectionException */
+  public static function getInstanceMetadata(string $class_name): InstanceMetadata {
     if (!array_key_exists($class_name, self::$instance_parsers)) {
       self::$instance_parsers[$class_name] = new InstanceMetadata($class_name);
     }

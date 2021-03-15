@@ -41,7 +41,7 @@ class InstanceType extends PHPDocType {
    */
   public function fromUnpackedValue($value, UseResolver $use_resolver) {
     $resolved_class_name = $this->getResolvedClassName($use_resolver);
-    $parser              = new InstanceSerializer($resolved_class_name);
+    $parser              = new InstanceDeserializer($resolved_class_name);
     return $parser->fromUnpackedArray($value);
   }
 
