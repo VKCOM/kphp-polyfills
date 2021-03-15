@@ -63,10 +63,8 @@ class InstanceSerializer {
    */
   private function getValue(int $property_id, object $instance) {
     $property = $this->instance_metadata->reflection_of_instance->getProperty($this->instance_metadata->names[$property_id]);
-    $is_accessible = $property->isPrivate() || $property->isProtected();
     $property->setAccessible(true);
     $result = $property->getValue($instance);
-    $property->setAccessible($is_accessible);
 
     if ($this->instance_metadata->as_float32[$property_id]) {
       return new DeepForceFloat32($result);
