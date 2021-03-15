@@ -31,29 +31,27 @@ class InstanceSerializer {
 
     $this->instance_metadata = InstanceMetadataCache::getInstanceMetadata(get_class($instance));
 
-    foreach ($this->instance_metadata->names as $i => $name) {
-      $this->tags_values[] = $this->instance_metadata->field_ids[$i];
-      $current_value = $this->getValue($i, $instance);
+    foreach ($this->instance_metadata->fields_data as $field) {
+      $this->tags_values[] = $field->id;
+      $current_value = $this->getValue($field, $instance);
       $this->tags_values[] = $current_value;
 
-      $this->checkTypeOf($this->instance_metadata->phpdoc_types[$i], $this->instance_metadata->types[$i], $this->instance_metadata->names[$i], $current_value);
+      $this->checkTypeOf($field, $current_value);
     }
 
     ClassTransformer::$depth--;
   }
 
-  /**
-   * @param mixed $value
-   */
-  private function checkTypeOf(PHPDocType $phpdoc_type, string $type, string $name, $value): void {
+  /** @param mixed $value */
+  private function checkTypeOf(FieldMetadata $field, $value): void {
     try {
-      $phpdoc_type->verifyValue($value, $this->instance_metadata->use_resolver);
+      $field->phpdoc_type->verifyValue($value, $this->instance_metadata->use_resolver);
     } catch (RuntimeException $e) {
       if (ClassTransformer::$depth > ClassTransformer::$max_depth) {
         throw $e;
       }
       $value = vk_json_encode($value);
-      throw new RuntimeException("value: `${value}` from field: `${name}` doesn't correspond to type: `${type}`", 0, $e);
+      throw new RuntimeException("value: `${value}` from field: `{$field->name}` doesn't correspond to type: `{$field->type}`", 0, $e);
     }
   }
 
@@ -61,12 +59,12 @@ class InstanceSerializer {
    * @return mixed|DeepForceFloat32
    * @throws ReflectionException
    */
-  private function getValue(int $property_id, object $instance) {
-    $property = $this->instance_metadata->reflection_of_instance->getProperty($this->instance_metadata->names[$property_id]);
+  private function getValue(FieldMetadata $field, object $instance) {
+    $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
     $property->setAccessible(true);
     $result = $property->getValue($instance);
 
-    if ($this->instance_metadata->as_float32[$property_id]) {
+    if ($field->as_float32) {
       return new DeepForceFloat32($result);
     }
     return $result;

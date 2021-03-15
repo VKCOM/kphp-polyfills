@@ -48,15 +48,13 @@ class InstanceDeserializer {
       $cur_tag   = (int)$unpacked_arr[$i];
       $cur_value = $unpacked_arr[$i + 1];
 
-      $cur_idx  = array_search($cur_tag, $this->instance_metadata->field_ids, true);
-      if ($cur_idx === false) {
-        continue;
+      foreach ($this->instance_metadata->fields_data as $field) {
+        if ($field->id == $cur_tag) {
+          $cur_value = $field->phpdoc_type->fromUnpackedValue($cur_value, $this->instance_metadata->use_resolver);
+          $this->setValue($rc_for_instance->getProperty($field->name), $instance, $cur_value);
+          break;
+        }
       }
-      $cur_type = $this->instance_metadata->phpdoc_types[$cur_idx];
-      $cur_name = $this->instance_metadata->names[$cur_idx];
-
-      $cur_value = $cur_type->fromUnpackedValue($cur_value, $this->instance_metadata->use_resolver);
-      $this->setValue($rc_for_instance->getProperty($cur_name), $instance, $cur_value);
     }
 
     return $instance;
