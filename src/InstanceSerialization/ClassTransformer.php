@@ -23,9 +23,7 @@ class ClassTransformer implements CanPack {
   public static $max_depth = 20;
 
   /**
-   * @param Packer $packer
    * @param object $instance
-   * @return string|null
    * @throws ReflectionException
    * @throws RuntimeException
    */

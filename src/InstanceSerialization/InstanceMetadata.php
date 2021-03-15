@@ -24,10 +24,10 @@ class InstanceMetadata {
   /**@var PHPDocType[] */
   public $phpdoc_types = [];
 
-  /**@var ReflectionClass|null */
+  /**@var ?ReflectionClass */
   public $reflection_of_instance = null;
 
-  /**@var UseResolver|null */
+  /**@var ?UseResolver */
   public $use_resolver = null;
 
   /** @var int[] */
