@@ -14,7 +14,7 @@ use ReflectionException;
 use ReflectionProperty;
 use RuntimeException;
 
-class InstanceParser {
+class InstanceSerializer {
   /**@var (mixed|DeepForceFloat32)[] */
   public $tags_values = [];
 
@@ -22,7 +22,7 @@ class InstanceParser {
   public $instance_metadata;
 
   /**
-   * InstanceParser constructor.
+   * InstanceSerializer constructor.
    * @param object|string $instance
    * @throws ReflectionException
    * @throws RuntimeException
