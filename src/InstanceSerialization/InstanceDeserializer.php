@@ -65,9 +65,7 @@ class InstanceDeserializer {
   }
 
   private function setValue(ReflectionProperty $property, object $instance, $value): void {
-    $is_accessible = $property->isPrivate() || $property->isProtected();
     $property->setAccessible(true);
     $property->setValue($instance, $value);
-    $property->setAccessible($is_accessible);
   }
 }
