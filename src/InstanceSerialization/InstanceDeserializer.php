@@ -46,22 +46,20 @@ class InstanceDeserializer {
 
     for ($i = 0, $i_max = count($unpacked_arr); $i < $i_max; $i += 2) {
       $cur_tag   = (int)$unpacked_arr[$i];
-      $cur_value = $unpacked_arr[$i + 1];
+      $value = $unpacked_arr[$i + 1];
 
       foreach ($this->instance_metadata->fields_data as $field) {
         if ($field->id == $cur_tag) {
-          $cur_value = $field->phpdoc_type->fromUnpackedValue($cur_value, $this->instance_metadata->use_resolver);
-          $this->setValue($rc_for_instance->getProperty($field->name), $instance, $cur_value);
+          $value = $field->phpdoc_type->fromUnpackedValue($value, $this->instance_metadata->use_resolver);
+
+          $property = $rc_for_instance->getProperty($field->name);
+          $property->setAccessible(true);
+          $property->setValue($instance, $value);
           break;
         }
       }
     }
 
     return $instance;
-  }
-
-  private function setValue(ReflectionProperty $property, object $instance, $value): void {
-    $property->setAccessible(true);
-    $property->setValue($instance, $value);
   }
 }
