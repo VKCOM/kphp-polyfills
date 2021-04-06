@@ -50,8 +50,7 @@ class InstanceSerializer {
       if (ClassTransformer::$depth > ClassTransformer::$max_depth) {
         throw $e;
       }
-      $value = vk_json_encode($value);
-      throw new RuntimeException("value: `${value}` from field: `{$field->name}` doesn't correspond to type: `{$field->type}`", 0, $e);
+      throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
     }
   }
 
