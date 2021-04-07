@@ -569,6 +569,48 @@ function rpc_server_fetch_request() {
 function rpc_server_store_response($response) {
 }
 
+/**
+ * Zstandard compression.
+ *
+ * @param  string $data
+ * @param  int    $level
+ * @return string|false
+ */
+function zstd_compress(string $data, int $level = 3) {
+    return "";
+}
+
+/**
+ * Zstandard decompression.
+ *
+ * @param  string $data
+ * @return string|false
+ */
+function zstd_uncompress(string $data) {
+    return "";
+}
+
+/**
+ * Zstandard compression using a digested dictionary.
+ *
+ * @param  string $data
+ * @param  string $dict
+ * @return string|false
+ */
+function zstd_compress_dict(string $data, string $dict) {
+    return "";
+}
+
+/**
+ * Zstandard decompression using a digested dictionary.
+ *
+ * @param  string $data
+ * @param  string $dict
+ * @return string|false
+ */
+function zstd_uncompress_dict(string $data, string $dict) {
+    return "";
+}
 
 exit("This file should not be included, only analyzed by your IDE");
 #endif
