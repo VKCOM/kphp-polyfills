@@ -548,7 +548,7 @@ function typed_rpc_tl_query_result(array $query_ids) {
  * @return array
  */
 function typed_rpc_tl_query_result_synchronously(array $query_ids) {
-    return typed_rpc_tl_query_result($query_ids);
+    return [];
 }
 
 /**
