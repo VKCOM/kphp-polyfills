@@ -544,6 +544,14 @@ function typed_rpc_tl_query_result(array $query_ids) {
 }
 
 /**
+ * @param int[] $query_ids
+ * @return array
+ */
+function typed_rpc_tl_query_result_synchronously(array $query_ids) {
+    return [];
+}
+
+/**
  * When storing an int32 TL value, if an int64 value doesn't fit, return a storing error and don't send a query.
  * @param bool $fail_rpc Enable this mode
  * @return bool
