@@ -307,6 +307,14 @@ function rpc_get_synchronously($qid) {
   return rpc_get($qid);
 }
 
+/**
+ * @param int[] $query_ids
+ * @return array
+ */
+function typed_rpc_tl_query_result_synchronously(array $query_ids) {
+    return typed_rpc_tl_query_result($query_ids);
+}
+
 function get_running_fork_id(): int {
   return 0;
 }
