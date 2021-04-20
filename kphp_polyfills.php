@@ -769,6 +769,55 @@ function memory_get_static_usage(): int {
 
 #endregion
 
+#region job workers
+
+interface KphpJobWorkerRequest {}
+interface KphpJobWorkerResponse {}
+
+class DummyKphpJobWorkerRequest implements KphpJobWorkerRequest {}
+
+/**
+ * @param KphpJobWorkerRequest $request
+ * @return int
+ */
+function kphp_job_worker_start(KphpJobWorkerRequest $request): int {
+  critical_error("not implemented");
+  return 0;
+}
+
+/**
+ * @param int   $job_id
+ * @param float $tmp_wait_timeout
+ * @return KphpJobWorkerRequest
+ */
+function kphp_job_worker_wait(int $job_id, float $tmp_wait_timeout = -1): KphpJobWorkerRequest {
+  critical_error("not implemented");
+  return new DummyKphpJobWorkerRequest();
+}
+
+/**
+ * @return KphpJobWorkerRequest
+ */
+function kphp_job_worker_fetch_request(): KphpJobWorkerRequest {
+  critical_error("not implemented");
+  return new DummyKphpJobWorkerRequest();
+}
+
+/**
+ * @param KphpJobWorkerResponse $response
+ */
+function kphp_job_worker_store_response(KphpJobWorkerResponse $response) {
+  critical_error("not implemented");
+}
+
+/**
+ * @return bool
+ */
+function is_kphp_job_workers_enabled(): bool {
+  return false;
+}
+
+#endregion
 
 #region misc
 
