@@ -781,6 +781,7 @@ class DummyKphpJobWorkerRequest implements KphpJobWorkerRequest {}
  * @return int
  */
 function kphp_job_worker_start(KphpJobWorkerRequest $request): int {
+  critical_error("not implemented");
   return 0;
 }
 
@@ -790,6 +791,7 @@ function kphp_job_worker_start(KphpJobWorkerRequest $request): int {
  * @return KphpJobWorkerRequest
  */
 function kphp_job_worker_wait(int $job_id, float $tmp_wait_timeout = -1): KphpJobWorkerRequest {
+  critical_error("not implemented");
   return new DummyKphpJobWorkerRequest();
 }
 
@@ -797,6 +799,7 @@ function kphp_job_worker_wait(int $job_id, float $tmp_wait_timeout = -1): KphpJo
  * @return KphpJobWorkerRequest
  */
 function kphp_job_worker_fetch_request(): KphpJobWorkerRequest {
+  critical_error("not implemented");
   return new DummyKphpJobWorkerRequest();
 }
 
@@ -804,6 +807,7 @@ function kphp_job_worker_fetch_request(): KphpJobWorkerRequest {
  * @param KphpJobWorkerResponse $response
  */
 function kphp_job_worker_store_response(KphpJobWorkerResponse $response) {
+  critical_error("not implemented");
 }
 
 /**
