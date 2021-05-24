@@ -753,6 +753,64 @@ function memory_get_static_usage(): int {
 
 #endregion
 
+#region hashes
+
+/**
+ * Calculates a 64-bit hash code from an integer
+ * @param int $x
+ * @return int
+ */
+function IntHash64(int $x): int {
+  /**
+   * @param string $num String representation of a number
+   * @return string Binary representation of a number as a string
+   */
+  $stringTo64Bin = function(string $num): string {
+    $res = "";
+    while ($num !== "0") {
+      $res = bcmod($num, "2") . $res;
+      $num = bcdiv($num, "2");
+      if (strlen($res) === 64) {
+        return $res;
+      }
+    }
+    return $res;
+  };
+  /**
+   * @param string $num Binary representation of a number as a string
+   * @return int Numeric value equal to the passed binary representation
+   */
+  $bin64ToInt = function(string $num): int {
+    $res = 0;
+    $len = strlen($num);
+
+    for ($i = $len - 1; $i >= 0; $i--) {
+      $index = ($len - 1) - $i;
+      if ($num[$i] === "1") {
+        $res |= 1 << $index;
+      }
+    }
+
+    return $res;
+  };
+
+  $x ^= 5544725790478674055;
+  $x ^= $x >> 33;
+
+  $x = bcmul(sprintf("%u", $x), "18397679294719823053");
+  $x = $bin64ToInt($stringTo64Bin($x));
+
+  $x ^= $x >> 33;
+
+  $x = bcmul(sprintf("%u", $x), "14181476777654086739");
+  $x = $bin64ToInt($stringTo64Bin($x));
+
+  $x ^= $x >> 33;
+
+  return $x;
+}
+
+#endregion
 
 #region misc
 
