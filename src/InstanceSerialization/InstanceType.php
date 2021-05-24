@@ -33,15 +33,14 @@ class InstanceType extends PHPDocType {
   }
 
   /**
-   * @param array|null  $value
-   * @param UseResolver $use_resolver
-   * @return object|null
+   * @param ?array $value
+   * @return ?object
    * @throws ReflectionException
    * @throws RuntimeException
    */
   public function fromUnpackedValue($value, UseResolver $use_resolver) {
     $resolved_class_name = $this->getResolvedClassName($use_resolver);
-    $parser              = new InstanceParser($resolved_class_name);
+    $parser              = new InstanceDeserializer($resolved_class_name);
     return $parser->fromUnpackedArray($value);
   }
 
@@ -55,11 +54,9 @@ class InstanceType extends PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
-   * @return void
    * @throws ReflectionException
    */
-  public function verifyValueImpl($value, UseResolver $use_resolver): void {
+  public function verifyValue($value, UseResolver $use_resolver): void {
     if ($value === null) {
       return;
     }
@@ -70,7 +67,7 @@ class InstanceType extends PHPDocType {
 
     $resolved_name = $this->getResolvedClassName($use_resolver);
     $rc            = new ReflectionClass($resolved_name);
-    $parser        = new InstanceParser($value); // will verify values inside $value
+    $parser        = new InstanceSerializer($value); // will verify values inside $value
     if ($parser->instance_metadata->reflection_of_instance->getName() !== $rc->getName()) {
       self::throwRuntimeException($rc->getName(), $this->type);
     }

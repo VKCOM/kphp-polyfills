@@ -307,6 +307,14 @@ function rpc_get_synchronously($qid) {
   return rpc_get($qid);
 }
 
+/**
+ * @param int[] $query_ids
+ * @return array
+ */
+function typed_rpc_tl_query_result_synchronously(array $query_ids) {
+    return typed_rpc_tl_query_result($query_ids);
+}
+
 function get_running_fork_id(): int {
   return 0;
 }
@@ -432,7 +440,12 @@ function array_filter_by_key(array $array, callable $callback) {
 
 /**
  * A useful function to reserve array memory - if you know in advance, how much elements will be inserted to it.
- * Effectice especially for vectors, as there will be no reallocations on insertion.
+ * Effective especially for vectors, as there will be no reallocation on insertion.
+ *
+ * Note: This is a low level function. For more user-friendly API check following aliases:
+ * @see array_reserve_vector
+ * @see array_reserve_map_int_keys
+ * @see array_reserve_map_string_keys
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
@@ -440,11 +453,12 @@ function array_filter_by_key(array $array, callable $callback) {
  * @param bool  $is_vector    Should it be a vector (if string keys amount is 0)
  */
 function array_reserve(&$arr, $int_keys_num, $str_keys_num, $is_vector) {
-  // in PHP does nothing
+    // in PHP does nothing
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, true).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $capacity     Amount of the elements (for vector) or int keys (for map with int keys)
@@ -454,7 +468,8 @@ function array_reserve_vector(&$arr, $capacity) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with int keys
+ * More useful @see array_reserve() alias for map with int keys.
+ * Similar to calling: array_reserve($arr, $capacity, 0, false).
  *
  * @param array $arr          Target array (vector/map)
  * @param int   $int_keys_num Amount of int keys
@@ -464,10 +479,11 @@ function array_reserve_map_int_keys(&$arr, $int_keys_num) {
 }
 
 /**
- * More useful @see array_reserve() alias for map with string keys
+ * More useful @see array_reserve() alias for map with string keys.
+ * Similar to calling: array_reserve($arr, 0, $capacity, false).
  *
  * @param array $arr          Target array (vector/map)
- * @param int   $str_keys_num Amoutn of string keys
+ * @param int   $str_keys_num Amount of string keys
  */
 function array_reserve_map_string_keys(&$arr, $str_keys_num) {
     // in PHP does nothing
@@ -607,7 +623,7 @@ function instance_deserialize(string $packed_str, string $type_of_instance): ?ob
   return _php_serialize_helper_run_or_warning(static function() use ($packed_str, $type_of_instance) {
     $unpacked_array = msgpack_deserialize_safe($packed_str);
 
-    $instance_parser = new KPHP\InstanceSerialization\InstanceParser($type_of_instance);
+    $instance_parser = new KPHP\InstanceSerialization\InstanceDeserializer($type_of_instance);
     return $instance_parser->fromUnpackedArray($unpacked_array);
   });
 }
@@ -808,6 +824,56 @@ function IntHash64(int $x): int {
   $x ^= $x >> 33;
 
   return $x;
+}
+
+#endregion
+
+#region job workers
+
+interface KphpJobWorkerRequest {}
+interface KphpJobWorkerResponse {}
+
+class DummyKphpJobWorkerRequest implements KphpJobWorkerRequest {}
+
+/**
+ * @param KphpJobWorkerRequest $request
+ * @return int
+ */
+function kphp_job_worker_start(KphpJobWorkerRequest $request): int {
+  critical_error("not implemented");
+  return 0;
+}
+
+/**
+ * @param int   $job_id
+ * @param float $tmp_wait_timeout
+ * @return KphpJobWorkerRequest
+ */
+function kphp_job_worker_wait(int $job_id, float $tmp_wait_timeout = -1): KphpJobWorkerRequest {
+  critical_error("not implemented");
+  return new DummyKphpJobWorkerRequest();
+}
+
+/**
+ * @return KphpJobWorkerRequest
+ */
+function kphp_job_worker_fetch_request(): KphpJobWorkerRequest {
+  critical_error("not implemented");
+  return new DummyKphpJobWorkerRequest();
+}
+
+/**
+ * @param KphpJobWorkerResponse $response
+ */
+function kphp_job_worker_store_response(KphpJobWorkerResponse $response) {
+  critical_error("not implemented");
+}
+
+/**
+ * @return bool
+ */
+function is_kphp_job_workers_enabled(): bool {
+  return false;
 }
 
 #endregion

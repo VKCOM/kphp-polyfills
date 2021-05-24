@@ -10,11 +10,10 @@
 namespace KPHP\InstanceSerialization;
 
 use ReflectionClass;
-use ReflectionException;
 use SplFileObject;
 
 class UseResolver {
-  /**@var ReflectionClass|null */
+  /**@var ?ReflectionClass */
   private $instance_reflection = null;
 
   /**@var string[] */
@@ -29,10 +28,6 @@ class UseResolver {
   /**@var int */
   private $token_id = -1;
 
-  /**
-   * UseResolver constructor.
-   * @throws ReflectionException
-   */
   public function __construct(ReflectionClass $instance_reflection) {
     $this->instance_reflection = $instance_reflection;
 

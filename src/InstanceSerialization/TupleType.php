@@ -20,11 +20,7 @@ class TupleType extends PHPDocType {
     $this->types = $types;
   }
 
-  /**
-   * @param string $str
-   * @return PHPDocType|null
-   * @throws RuntimeException
-   */
+  /** @throws RuntimeException */
   protected static function parseImpl(string &$str): ?PHPDocType {
     if (!parent::removeIfStartsWith($str, '\\tuple(') && !parent::removeIfStartsWith($str, 'tuple(')) {
       return null;
@@ -53,22 +49,33 @@ class TupleType extends PHPDocType {
   }
 
   /**
-   * @param mixed       $value
-   * @param UseResolver $use_resolver
-   * @return array
+   * @param mixed $value
    * @throws RuntimeException
    */
   public function fromUnpackedValue($value, UseResolver $use_resolver): array {
-    $res             = [];
-    $value_collector = static function(PHPDocType $type, $value) use ($use_resolver, &$res) {
-      $res[] = $type->fromUnpackedValue($value, $use_resolver);
-    };
-    $this->runOnEachValue($value, $value_collector);
+    $this->checkValue($value);
+    $res = [];
+    for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
+      $res[] = $this->types[$i]->fromUnpackedValue($value[$i], $use_resolver);
+    }
 
     return $res;
   }
 
-  private function runOnEachValue($value, callable $callback): void {
+  /** @param mixed $value */
+  public function verifyValue($value, UseResolver $use_resolver): void {
+    $this->checkValue($value);
+    for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
+      $this->types[$i]->verifyValue($value[$i], $use_resolver);
+    }
+  }
+
+  protected function hasInstanceInside(): bool {
+    return in_array(true, array_map([$this, 'hasInstanceInside'], $this->types), true);
+  }
+
+  /** @param mixed $value */
+  private function checkValue($value): void {
     if (!is_array($value)) {
       self::throwRuntimeException($value, $this->types);
     }
@@ -76,21 +83,6 @@ class TupleType extends PHPDocType {
     if (count($this->types) !== count($value)) {
       self::throwRuntimeException($value, $this->types);
     }
-
-    for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
-      $callback($this->types[$i], $value[$i]);
-    }
-  }
-
-  public function verifyValueImpl($value, UseResolver $use_resolver): void {
-    $value_verifier = static function(PHPDocType $type, $value) use ($use_resolver) {
-      $type->verifyValue($value, $use_resolver);
-    };
-    $this->runOnEachValue($value, $value_verifier);
-  }
-
-  protected function hasInstanceInside(): bool {
-    return in_array(true, array_map([$this, 'hasInstanceInside'], $this->types), true);
   }
 }
 

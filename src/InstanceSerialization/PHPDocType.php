@@ -83,32 +83,17 @@ abstract class PHPDocType {
   }
 
   /**
-   * @param mixed       $value
-   * @param UseResolver $use_resolver
+   * @param mixed $value
    * @return mixed
    * @throws RuntimeException
    */
   abstract public function fromUnpackedValue($value, UseResolver $use_resolver);
 
   /**
-   * @param mixed       $value
-   * @param UseResolver $use_resolver
+   * @param mixed $value
    * @throws RuntimeException
    */
-  public function verifyValue($value, UseResolver $use_resolver): void {
-    if ($value instanceof DeepForceFloat32) {
-      $this->verifyValueImpl($value->value, $use_resolver);
-    } else {
-      $this->verifyValueImpl($value, $use_resolver);
-    }
-  }
-
-  /**
-   * @param mixed       $value
-   * @param UseResolver $use_resolver
-   * @throws RuntimeException
-   */
-  abstract public function verifyValueImpl($value, UseResolver $use_resolver): void;
+  abstract public function verifyValue($value, UseResolver $use_resolver): void;
 
   abstract protected function hasInstanceInside(): bool;
 }

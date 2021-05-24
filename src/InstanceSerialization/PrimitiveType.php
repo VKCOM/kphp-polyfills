@@ -37,7 +37,6 @@ class PrimitiveType extends PHPDocType {
 
   /**
    * @param mixed       $value
-   * @param UseResolver $use_resolver
    * @return mixed
    * @throws RuntimeException
    */
@@ -67,7 +66,7 @@ class PrimitiveType extends PHPDocType {
     return $this->type;
   }
 
-  public function verifyValueImpl($value, UseResolver $_): void {
+  public function verifyValue($value, UseResolver $_): void {
     $true_type = $this->getPHPCompliantType();
     if (gettype($value) === $true_type) {
       if (($this->type === 'true' && $value !== true) ||

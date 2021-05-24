@@ -23,9 +23,7 @@ class ClassTransformer implements CanPack {
   public static $max_depth = 20;
 
   /**
-   * @param Packer $packer
    * @param object $instance
-   * @return string|null
    * @throws ReflectionException
    * @throws RuntimeException
    */
@@ -34,7 +32,7 @@ class ClassTransformer implements CanPack {
       $packer = (new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_FLOAT32))->extendWith(new ClassTransformer());
       return $packer->pack($instance->value);
     }
-    $instance_parser = new InstanceParser($instance);
+    $instance_parser = new InstanceSerializer($instance);
     return $packer->pack($instance_parser->tags_values);
   }
 }

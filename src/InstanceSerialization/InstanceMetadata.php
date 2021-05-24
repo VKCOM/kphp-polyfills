@@ -14,27 +14,14 @@ use ReflectionException;
 use RuntimeException;
 
 class InstanceMetadata {
+  /**@var FieldMetadata[] */
+  public $fields_data = [];
 
-  /**@var string[] */
-  public $names = [];
-
-  /**@var string[] */
-  public $types = [];
-
-  /**@var PHPDocType[] */
-  public $phpdoc_types = [];
-
-  /**@var ReflectionClass|null */
+  /**@var ?ReflectionClass */
   public $reflection_of_instance = null;
 
-  /**@var UseResolver|null */
+  /**@var ?UseResolver */
   public $use_resolver = null;
-
-  /** @var int[] */
-  public $field_ids = [];
-
-  /**@var bool[] */
-  public $as_float32 = [];
 
   /**
    * @throws ReflectionException
@@ -59,49 +46,59 @@ class InstanceMetadata {
     $reserved_field_ids = array_map('intval', $reserved_field_ids);
 
     foreach ($this->reflection_of_instance->getProperties() as $property) {
-      preg_match('/@kphp-serialized-field\s+(\d+|none)[\s*]/', $property->getDocComment(), $matches);
+      $curDocComment = $property->getDocComment();
+      $curName = $property->getName();
+      preg_match('/@kphp-serialized-field\s+(\d+|none)[\s*]/', $curDocComment, $matches);
 
       if ($property->isStatic()) {
         if ($matches) {
-          throw new RuntimeException('@kphp-serialized-field tag is forbidden for static fields: ' . $property->getName());
+          throw new RuntimeException('@kphp-serialized-field tag is forbidden for static fields: ' . $curName);
         }
         continue;
       }
 
       if (count($matches) <= 1) {
-        throw new RuntimeException('You should add @kphp-serialized-field phpdoc to field: ' . $property->getName());
+        throw new RuntimeException('You should add @kphp-serialized-field phpdoc to field: ' . $curName);
       }
 
       if ($matches[1] === 'none') {
         continue;
       }
       assert(is_numeric($matches[1]));
-      $matches[1] = (int)$matches[1];
+      $field = new FieldMetadata();
+      $field->id = (int)$matches[1];
 
-      if ($matches[1] < 0 || 127 < $matches[1]) {
-        throw new RuntimeException("id=${matches[1]} is not in the range [0, 127], field: " . $property->getName());
+      if ($field->id < 0 || 127 < $field->id) {
+        throw new RuntimeException("id=${matches[1]} is not in the range [0, 127], field: " . $curName);
       }
 
-      if (in_array($matches[1], $reserved_field_ids, true)) {
-        throw new RuntimeException("id=${matches[1]} is already in use, field: " . $property->getName());
+      if (in_array($field->id, $reserved_field_ids, true)) {
+        throw new RuntimeException("id=${matches[1]} is already in use, field: " . $curName);
       }
-      $reserved_field_ids[] = $matches[1];
-      $this->field_ids[] = $matches[1];
+      $reserved_field_ids[] = $field->id;
 
-      $this->names[] = $property->getName();
+      $field->name = $curName;
 
-      $this->as_float32[] = strpos($property->getDocComment(), '@kphp-serialized-float32') !== false;
+      $field->as_float32 = strpos($curDocComment, '@kphp-serialized-float32') !== false;
 
-      preg_match('/@var\s+([^\n]+)/', $property->getDocComment(), $matches);
-      assert(count($matches) > 1);
-      $type     = (string)$matches[1];
-      $type_copy = $type;
-      $parsed_phpdoc = PHPDocType::parse($type_copy);
-      if ($parsed_phpdoc === null) {
-        throw new RuntimeException("Can't parse phpdoc: {$type}");
+      // get type either from @var or from php 7.4 field type hint
+      preg_match('/@var\s+([^\n]+)/', $curDocComment, $matches);
+      if (count($matches) > 1) {
+        $field->type = (string)$matches[1];
+      } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
+        $type = $property->getType();
+        $field->type = ($type ? '?' : '') . $type;
       }
-      $this->types[] = $type;
-      $this->phpdoc_types[] = $parsed_phpdoc;
+      if ($field->type === '') {
+        throw new RuntimeException("Can't detect type of field {$curName}");
+      }
+
+      $type_copy = $field->type;
+      $field->phpdoc_type = PHPDocType::parse($type_copy);
+      if ($field->phpdoc_type === null) {
+        throw new RuntimeException("Can't parse phpdoc of field {$curName}: {$field->type}");
+      }
+      $this->fields_data[] = $field;
     }
   }
 }

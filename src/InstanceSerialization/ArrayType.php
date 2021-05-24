@@ -12,7 +12,7 @@ namespace KPHP\InstanceSerialization;
 use RuntimeException;
 
 class ArrayType extends PHPDocType {
-  /**@var PHPDocType|null */
+  /**@var ?PHPDocType */
   public $inner_type = null;
 
   /**@var int */
@@ -50,47 +50,50 @@ class ArrayType extends PHPDocType {
   }
 
   /**
-   * @param array       $arr
-   * @param UseResolver $use_resolver
-   * @return array
+   * @param mixed[] $arr
    * @throws RuntimeException
    */
   public function fromUnpackedValue($arr, UseResolver $use_resolver): array {
-    if (is_array($arr) && !$this->hasInstanceInside()) {
+    if (!is_array($arr)) {
+      throw new RuntimeException('not instance: ' . $arr);
+    }
+
+    if (!$this->hasInstanceInside()) {
       return $arr;
     }
 
-    $value_collector = function($value) use ($use_resolver) {
-      return $this->inner_type->fromUnpackedValue($value, $use_resolver);
-    };
-    return $this->runOnEachValue($arr, $value_collector, $this->cnt_arrays);
+    $res = [];
+    foreach ($arr as $key => $value) {
+      if ($this->cnt_arrays === 1) {
+        $res[$key] = $this->inner_type->fromUnpackedValue($value, $use_resolver);
+      } else {
+        $this->cnt_arrays -= 1;
+        $res[$key] = $this->fromUnpackedValue($value, $use_resolver);
+        $this->cnt_arrays += 1;
+      }
+    }
+
+    return $res;
   }
 
   protected function hasInstanceInside(): bool {
     return $this->inner_type->hasInstanceInside();
   }
 
-  private function runOnEachValue($arr, callable $callback, int $cnt_arrays): array {
-    if (!is_array($arr)) {
-      throw new RuntimeException('not instance: ' . $arr);
+  public function verifyValue($array, UseResolver $use_resolver): void {
+    if (!is_array($array)) {
+      throw new RuntimeException('not instance: ' . $array);
     }
 
-    $res = [];
-    foreach ($arr as $key => $value) {
-      $res[$key] = $cnt_arrays === 1
-        ? $callback($value)
-        : $this->runOnEachValue($value, $callback, $cnt_arrays - 1);
+    foreach ($array as $value) {
+      if ($this->cnt_arrays === 1) {
+        $this->inner_type->verifyValue($value, $use_resolver);
+      } else {
+        $this->cnt_arrays -= 1;
+        $this->verifyValue($value, $use_resolver);
+        $this->cnt_arrays += 1;
+      }
     }
-
-    return $res;
-  }
-
-  public function verifyValueImpl($value, UseResolver $use_resolver): void {
-    $value_verifier = function($value) use ($use_resolver) {
-      $this->inner_type->verifyValue($value, $use_resolver);
-      return true;
-    };
-    $this->runOnEachValue($value, $value_verifier, $this->cnt_arrays);
   }
 }
 
