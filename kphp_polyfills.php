@@ -773,6 +773,19 @@ function memory_get_static_usage(): int {
 
 /**
  * Calculates a 64-bit hash code from an integer
+ *
+ * Note: that function returns a 64 bit unsigned number,
+ * which PHP interprets as signed. Operations on it can
+ * give different results than similar operations in C++.
+ *
+ * For example, taking the remainder of the division will
+ * be different. To get the same result as in C++, use bcmath.
+ *
+ * For example:
+ *   $x = IntHash64(1234); // real unsigned: 10291531590761948602, fact signed: -8155212482947603014
+ *   $val = $x % 32; // -6, PHP will take the remainder of the division for a fact signed one.
+ *   $val = bcmod(sprintf("%u", $x), 32); // 26, bcmod will take the remainder of the division for a real unsigned one.
+ *
  * @param int $x
  * @return int
  */
@@ -809,19 +822,35 @@ function IntHash64(int $x): int {
 
     return $res;
   };
+  /**
+   * A function that shifts bits in a passed number as in C++.
+   * @param int $num
+   * @param int $shift
+   * @return int
+   */
+  $shiftRightInt = function(int $num, int $shift) use ($stringTo64Bin, $bin64ToInt): int {
+    $str = $stringTo64Bin(sprintf("%u", $num));
+
+    $res_num = substr($str, 0, strlen($str) - $shift);
+    if (!$res_num) {
+      return 0;
+    }
+
+    return $bin64ToInt($res_num);
+  };
 
   $x ^= 5544725790478674055;
-  $x ^= $x >> 33;
+  $x ^= $shiftRightInt($x, 33);
 
   $x = bcmul(sprintf("%u", $x), "18397679294719823053");
   $x = $bin64ToInt($stringTo64Bin($x));
 
-  $x ^= $x >> 33;
+  $x ^= $shiftRightInt($x, 33);
 
   $x = bcmul(sprintf("%u", $x), "14181476777654086739");
   $x = $bin64ToInt($stringTo64Bin($x));
 
-  $x ^= $x >> 33;
+  $x ^= $shiftRightInt($x, 33);
 
   return $x;
 }
