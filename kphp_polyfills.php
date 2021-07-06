@@ -769,55 +769,121 @@ function memory_get_static_usage(): int {
 
 #endregion
 
+
 #region job workers
 
-interface KphpJobWorkerRequest {}
-interface KphpJobWorkerResponse {}
-
-class DummyKphpJobWorkerRequest implements KphpJobWorkerRequest {}
+// contains declarations for KPHP job workers api
+// it has NO PHP IMPLEMENTATION; kphp_job_worker_start() isn't supposed to be called in plain PHP
 
 /**
- * @param KphpJobWorkerRequest $request
- * @return int
+ * Job workers are separate processes which can be invoked from HTTP workers to parallelize your PHP code.
+ * Unlike forks, that are coroutines actually, job workers can parallelize CPU-consuming execution.
+ * @see kphp_job_worker_start accepting \KphpJobWorkerRequest and returning future<\KphpJobWorkerResponse>|false
+ * @see wait accepting future<T>|false and returning ?T
+ * To handle job requests in an entrypoint, test for $_SERVER["JOB_ID"]
  */
-function kphp_job_worker_start(KphpJobWorkerRequest $request): int {
-  critical_error("not implemented");
-  return 0;
+interface KphpJobWorkerRequest {
 }
 
 /**
- * @param int   $job_id
- * @param float $tmp_wait_timeout
- * @return KphpJobWorkerRequest
+ * Job workers are separate processes which can be invoked from HTTP workers to parallelize your PHP code.
+ * @see \KphpJobWorkerRequest
  */
-function kphp_job_worker_wait(int $job_id, float $tmp_wait_timeout = -1): KphpJobWorkerRequest {
-  critical_error("not implemented");
-  return new DummyKphpJobWorkerRequest();
+interface KphpJobWorkerResponse {
 }
 
 /**
- * @return KphpJobWorkerRequest
+ * Classes marked with this interface can be shared across multiple job workers (for reading only due to immutability).
+ * This is used for optimization: it allows copying an object only once while launching multiple job workers.
+ * Consider the docs for details.
+ * @see kphp_job_worker_start_multi
+ * @kphp-immutable-class
  */
-function kphp_job_worker_fetch_request(): KphpJobWorkerRequest {
-  critical_error("not implemented");
-  return new DummyKphpJobWorkerRequest();
+interface KphpJobWorkerSharedMemoryPiece {
 }
 
 /**
- * @param KphpJobWorkerResponse $response
+ * When a job worker fails, this built-in instance is returned from wait().
+ * In other words, it's an error result for future<KphpJobWorkerResponse>
+ * Hence, having called wait(), you should test the result with instanceof, handling an error and probably providing a local execution path.
  */
-function kphp_job_worker_store_response(KphpJobWorkerResponse $response) {
-  critical_error("not implemented");
+class KphpJobWorkerResponseError implements KphpJobWorkerResponse {
+  public function getError(): string {
+    return '';
+  }
+
+  public function getErrorCode(): int {
+    // JOB_MEMORY_LIMIT_ERROR = -101
+    // JOB_TIMEOUT_ERROR = -102
+    // JOB_EXCEPTION_ERROR = -103
+    // JOB_STACK_OVERFLOW_ERROR = -104
+    // JOB_PHP_ASSERT_ERROR = -105
+    // JOB_NO_REPLY = -2001
+    return 0;
+  }
 }
 
+
 /**
- * @return bool
+ * Returns whether KPHP is launched with at least one job worker process.
+ * Your code must be always prepared to provide a local execution path if job workers are turned off on KPHP launch.
  */
 function is_kphp_job_workers_enabled(): bool {
   return false;
 }
 
+/**
+ * Returns a number of job worker processes launched on KPHP start. This number remains the same after starting.
+ * This can be used to split job tasks to batches: instead of using a fixed-size splitting, you use percentage of workers.
+ */
+function get_job_workers_number(): int {
+  return 0;
+}
+
+/**
+ * Starts a job worker request that will be handled in a separate KPHP process.
+ * Internally, it deeply copies $request to a shared memory buffer that would be available for a job process for reading.
+ * Job workers can be called from job workers.
+ * There is no PHP implementation: the caller side must provide a local fallback when there are no job workers available.
+ * The response can be achieved using @see wait
+ * @return future<KphpJobWorkerResponse> | false
+ */
+function kphp_job_worker_start(KphpJobWorkerRequest $request, float $timeout) {
+  warning("kphp_job_worker_start() should be used in KPHP only");
+  return false;
+}
+
+/**
+ * Starts multiple job workers at once, which can share the same shared memory piece as a request class field.
+ * Consider the docs for details.
+ * @see KphpJobWorkerSharedMemoryPiece
+ * @param KphpJobWorkerRequest[] $requests
+ * @return (future<KphpJobWorkerResponse> | false)[]
+ */
+function kphp_job_worker_start_multi(array $requests, float $timeout) {
+  warning("kphp_job_worker_start_multi() should be used in KPHP only");
+  return [];
+}
+
+/**
+ * Deserializes a job request from a shared memory buffer to a script-visible memory.
+ * Works only when the current KPHP process is launched as a job worker (test for $_SERVER["JOB_ID"] in a PHP entrypoint).
+ */
+function kphp_job_worker_fetch_request(): ?KphpJobWorkerRequest {
+  warning("kphp_job_worker_fetch_request() should be used in KPHP only");
+  return null;
+}
+
+/**
+ * Serializes a server job response to a shared memory buffer passing a response back to the caller.
+ * Works only when the current KPHP process is launched as a job worker (test for $_SERVER["JOB_ID"] in a PHP entrypoint).
+ */
+function kphp_job_worker_store_response(KphpJobWorkerResponse $response): void {
+  warning("kphp_job_worker_store_response() should be used in KPHP only");
+}
+
 #endregion
+
 
 #region misc
 
