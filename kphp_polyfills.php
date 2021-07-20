@@ -866,6 +866,16 @@ function kphp_job_worker_start_multi(array $requests, float $timeout) {
 }
 
 /**
+ * Starts a job worker that will never reply, wait() can't be called for it.
+ * Used to initiate a background process that will probably continue after http worker's death.
+ * @return bool true|false instead of future|false (this boolean means whether a job was added to queue)
+ */
+function kphp_job_worker_start_no_reply(KphpJobWorkerRequest $request, float $timeout): bool {
+  warning("kphp_job_worker_start_no_reply() should be used in KPHP only");
+  return false;
+}
+
+/**
  * Deserializes a job request from a shared memory buffer to a script-visible memory.
  * Works only when the current KPHP process is launched as a job worker (test for $_SERVER["JOB_ID"] in a PHP entrypoint).
  */
