@@ -118,7 +118,7 @@ class UseResolver {
       return $this->instance_reflection->getName();
     }
 
-    $backslash_position = strstr($instance_name, '\\') ?: strlen($instance_name);
+    $backslash_position = strpos($instance_name, '\\') ?: strlen($instance_name);
     $first_part_of_name = substr($instance_name, 0, $backslash_position);
     if (isset($this->alias_to_name[$first_part_of_name])) {
       return $this->alias_to_name[$first_part_of_name] . substr($instance_name, strlen($first_part_of_name));
