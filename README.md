@@ -10,7 +10,7 @@ Without polyfills, your code can be compiled, but can't be run by plain PHP.
 
 * If it's your first installed package, call composer autoload:
 ```php
-require_once '.../vendor/autoload.php';
+require_once '../vendor/autoload.php';
 ``` 
 
 * You are done! All KPHP functions would work on plain PHP.
