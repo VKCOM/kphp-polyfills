@@ -1006,5 +1006,16 @@ function unlikely(bool $value): bool {
 
 #endregion
 
+/**
+ * In PHP 8, the logic for comparing numbers and strings has changed, to
+ * enable warnings for different results in PHP 7 and PHP 8 this function
+ * is used.
+ * @param bool $show Enable this mode
+ * @return bool
+ */
+function set_show_number_string_conversion_warning(bool $show): bool {
+  return true;
+}
+
 
 #endif
