@@ -87,7 +87,7 @@ class InstanceMetadata {
         $field->type = (string)$matches[1];
       } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
         $type = $property->getType();
-        $field->type = ($type ? '?' : '') . $type;
+        $field->type = ($type ? '?' : '') . $type->getName();
       }
       if ($field->type === '') {
         throw new RuntimeException("Can't detect type of field {$curName}");
