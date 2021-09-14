@@ -71,7 +71,7 @@ class TupleType extends PHPDocType {
   }
 
   protected function hasInstanceInside(): bool {
-    return in_array(true, array_map([$this, 'hasInstanceInside'], $this->types), true);
+    return in_array(true, array_map(fn(PHPDocType $type) => $type->hasInstanceInside(), $this->types), true);
   }
 
   /** @param mixed $value */
