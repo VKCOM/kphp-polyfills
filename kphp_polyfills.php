@@ -808,17 +808,21 @@ interface KphpJobWorkerSharedMemoryPiece {
  * Hence, having called wait(), you should test the result with instanceof, handling an error and probably providing a local execution path.
  */
 class KphpJobWorkerResponseError implements KphpJobWorkerResponse {
+  // Job script execution errors:
+  const JOB_MEMORY_LIMIT_ERROR = -101;
+  const JOB_TIMEOUT_ERROR = -102;
+  const JOB_EXCEPTION_ERROR = -103;
+  const JOB_STACK_OVERFLOW_ERROR = -104;
+  const JOB_PHP_ASSERT_ERROR = -105;
+
+  const JOB_CLIENT_MEMORY_LIMIT_ERROR = -1001; // client doesn't have enough memory to accept job response
+  const JOB_NOTHING_REPLIED_ERROR = -2001;     // kphp_job_worker_store_response() was not succeeded
+
   public function getError(): string {
     return '';
   }
 
   public function getErrorCode(): int {
-    // JOB_MEMORY_LIMIT_ERROR = -101
-    // JOB_TIMEOUT_ERROR = -102
-    // JOB_EXCEPTION_ERROR = -103
-    // JOB_STACK_OVERFLOW_ERROR = -104
-    // JOB_PHP_ASSERT_ERROR = -105
-    // JOB_NO_REPLY = -2001
     return 0;
   }
 }
