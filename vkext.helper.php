@@ -136,6 +136,14 @@ function rpc_queue_next($queue_id, $timeout = -1.0) {
 }
 
 /**
+ * @param int $queue_id
+ * @return int|false
+ */
+function rpc_queue_next_synchronously($queue_id) {
+  return 0;
+}
+
+/**
  * Pushes all $queries to queue with id $queue_id.
  * Every queue can be pushed only to one queue only once.
  * Used by rpc_tl_query_result.
