@@ -129,7 +129,7 @@ function rpc_queue_empty($queue_id) {
  *
  * @param int $queue_id
  * @param float $timeout
- * @return int
+ * @return int|false
  */
 function rpc_queue_next($queue_id, $timeout = -1.0) {
   return 0;
