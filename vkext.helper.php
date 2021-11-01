@@ -26,8 +26,6 @@
 
 #ifndef KPHP
 
-define('KPHP_COMPILER_VERSION', '');
-
 /**
  * Converts string in utf8 to string in cp1251 with html-entities.
  *

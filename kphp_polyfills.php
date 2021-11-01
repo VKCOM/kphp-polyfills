@@ -24,6 +24,11 @@
 
 #ifndef KPHP  // all contents of this file is invisible for KPHP
 
+#region constants
+
+define('KPHP_COMPILER_VERSION', '');
+
+#endregion
 
 #region types
 
