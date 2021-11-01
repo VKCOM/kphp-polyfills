@@ -989,6 +989,9 @@ function vk_json_encode_safe($v) {
   return vk_json_encode($v);
 }
 
+function set_json_log_on_timeout_mode(bool $enabled): void {
+}
+
 function vk_dot_product(array $aVector, array $bVector): float {
   assert(count($aVector) == count($bVector));
   $result = 0;
