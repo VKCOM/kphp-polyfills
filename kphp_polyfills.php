@@ -1024,3 +1024,12 @@ function set_migration_php8_warning(int $mask): void {}
 
 
 #endif
+
+/**
+ * Gives a ballpark size estimate of the given value, in bytes.
+ * Results may differ greatly from KPHP
+ */
+function estimate_memory_usage($value, int $depth = 0): int {
+  // works 10x times faster than iterating over array elements, reflection on objects etc.
+  return strlen(serialize($value));
+}
