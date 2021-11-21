@@ -87,7 +87,18 @@ class InstanceMetadata {
         $field->type = (string)$matches[1];
       } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
         $type = $property->getType();
-        $field->type = ($type ? '?' : '') . $type->getName();
+        $type_name = $type->getName();
+
+        if (!$type->isBuiltin() && $type_name[0] !== '\\') {
+          // Fix for https://github.com/VKCOM/kphp-polyfills/issues/35
+          // So UseResolver::resolveName will return the path as is.
+          $type_name = "\\{$type_name}";
+        }
+        if ($type->allowsNull()) {
+          $type_name = "?{$type_name}";
+        }
+
+        $field->type = $type_name;
       }
       if ($field->type === '') {
         throw new RuntimeException("Can't detect type of field {$curName}");
