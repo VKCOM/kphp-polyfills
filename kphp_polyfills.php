@@ -156,7 +156,7 @@ function instance_cast($instance, string $class_name) {
 }
 
 /**
- * instance_to_array($any_object) : var[] - deep convertation to object to array
+ * to_array_debug($any_object) : mixed[] - deep convertation to object to array
  * Similar to (array)$any_object, but deep and with strict behaviour.
  * Useful for logging and debugging.
  * For all classes that are array-converted, KPHP generates an effective C++ visitor.
@@ -164,7 +164,7 @@ function instance_cast($instance, string $class_name) {
  * @param bool   $with_class_names Should the resulting array contain class names
  * @return mixed[]
  */
-function instance_to_array($instance, $with_class_names = false) {
+function to_array_debug($instance, $with_class_names = false) {
   // (array) $instance in PHP outputs private/protected fields as '\0ClassName\0fieldName'
   // kphp implementation doesn't depend on access type, so demangle such array keys to just 'fieldName'
   $demangleField = function($key) {
@@ -195,6 +195,12 @@ function instance_to_array($instance, $with_class_names = false) {
   return $toArray($instance);
 }
 
+/**
+ * @see to_array_debug function
+ */
+function instance_to_array($instance, $with_class_names = false) {
+  return to_array_debug($instance, $with_class_names);
+}
 
 #endregion
 
