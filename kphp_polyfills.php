@@ -162,22 +162,29 @@ function instance_cast($instance, string $class_name) {
  * For all classes that are array-converted, KPHP generates an effective C++ visitor.
  * @param object $instance Any instance
  * @param bool   $with_class_names Should the resulting array contain class names
+ * @param bool   $public_members_only Should the resulting array contain only public fields
  * @return mixed[]
  */
-function to_array_debug($instance, $with_class_names = false) {
+
+function to_array_debug($instance, $with_class_names = false, $public_members_only = false) {
   // (array) $instance in PHP outputs private/protected fields as '\0ClassName\0fieldName'
-  // kphp implementation doesn't depend on access type, so demangle such array keys to just 'fieldName'
-  $demangleField = function($key) {
-    if ($key[0] === "\0") {
+  // kphp omit such control characters
+  $isPrivateField = function($key) { return $key[0] === "\0"; };
+
+  $demangleField = function($key) use ($isPrivateField){
+    if ($isPrivateField($key)) {
       $key = preg_replace("/\\0.+\\0/", '', $key);
     }
     return $key;
   };
 
-  $toArray = function($v) use (&$toArray, &$demangleField, &$with_class_names) {
+  $toArray = function($v) use (&$toArray, &$demangleField, &$with_class_names, $public_members_only, $isPrivateField) {
     if (is_object($v)) {
       $result = [];
       foreach ((array)$v as $field => $value) {
+        if ($public_members_only && $isPrivateField($field)) {
+          continue;
+        }
         $result[$demangleField($field)] = $toArray($value);
       }
       if ($with_class_names) {
