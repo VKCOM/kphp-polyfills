@@ -518,6 +518,15 @@ function array_reserve_from(array &$arr, array $base) {
 }
 
 /**
+ * array_unset(T[], $key) : T - unset value in array and return it
+ */
+function array_unset(array &$arr, $key) {
+  $res = $arr[$key];
+  unset($arr[$key]);
+  return $res;
+}
+
+/**
  * @deprecated
  * @param array $a
  * @param int $n
