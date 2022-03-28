@@ -1061,4 +1061,27 @@ function estimate_memory_usage($value, int $depth = 0): int {
   return strlen(serialize($value));
 }
 
+#region ffi
+
+/**
+ * ffi_array_set implements array or pointer update operation: $arr[$index] = $value
+ * For CData arrays, a bound check if performed: PHP throws and KPHP triggers
+ * a critical error if $index is out of bounds
+ */
+function ffi_array_set(\FFI\CData $arr, int $index, $value): void {
+  $arr[$index] = $value;
+}
+
+/**
+ * ffi_array_get implements array or pointer read operation: $arr[$index]
+ * For CData arrays, a bound check if performed: PHP throws and KPHP triggers
+ * a critical error if $index is out of bounds
+ * @return \FFI\CData
+ */
+function ffi_array_get(\FFI\CData $arr, int $index) {
+  return $arr[$index];
+}
+
+#endregion ffi
+
 #endif
