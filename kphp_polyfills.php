@@ -1038,6 +1038,41 @@ function unlikely(bool $value): bool {
 }
 
 
+/**
+ * CompileTimeLocation is a KPHP built-in class which allows getting a caller location inside a function.
+ * In PHP, you write:
+ *   function log_info(string $message, CompileTimeLocation $loc = null) {
+ *     $loc = CompileTimeLocation::calculate($loc);
+ *     echo "$message (at {$loc->file}:{$loc->line})";
+ *   }
+ *   log_info("start");  // $loc inside log_info() will contain file/function/line of this exact call
+ * In PHP, it works at runtime using debug_backtrace().
+ * In KPHP, it works at compile-time, since KPHP implicitly inserts an argument on a call
+ * replacing log_info($x) with log_info($x, new CompileTimeLocation(__FILE__, __METHOD__, __LINE)).
+ */
+class CompileTimeLocation {
+  public string $file;
+  public string $function;
+  public int $line;
+
+  private function __construct() { }
+
+  static public function calculate(?CompileTimeLocation $passed): CompileTimeLocation {
+    if ($passed !== null) {
+      return $passed;
+    }
+
+    $t = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+    $loc = new CompileTimeLocation;
+
+    $loc->file = $t[1]['file'];
+    $loc->function = isset($t[2]['class']) ? "{$t[2]['class']}::{$t[2]['function']}" : ($t[2]['function'] ?? '');
+    $loc->line = $t[1]['line'];
+    return $loc;
+  }
+}
+
+
 #endregion
 
 /**
@@ -1061,7 +1096,9 @@ function estimate_memory_usage($value, int $depth = 0): int {
   return strlen(serialize($value));
 }
 
+
 #region ffi
+
 
 /**
  * ffi_array_set implements array or pointer update operation: $arr[$index] = $value
@@ -1082,6 +1119,8 @@ function ffi_array_get(\FFI\CData $arr, int $index) {
   return $arr[$index];
 }
 
-#endregion ffi
+
+#endregion
+
 
 #endif
