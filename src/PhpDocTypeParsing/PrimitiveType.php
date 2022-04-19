@@ -95,4 +95,13 @@ class PrimitiveType extends PHPDocType {
   protected function hasInstanceInside(): bool {
     return false;
   }
+
+  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    $this->verifyValue($value, $use_resolver);
+    $map[$name] = $value;
+  }
+
+  public function decodeValue($value, UseResolver $use_resolver) {
+    return $this->fromUnpackedValue($value, $use_resolver);
+  }
 }

@@ -47,4 +47,20 @@ class OrType extends PHPDocType {
   protected function hasInstanceInside(): bool {
     return $this->type1->hasInstanceInside() || $this->type2->hasInstanceInside();
   }
+
+  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    try {
+      $this->type1->storeValueToMap($name, $value, $map, $use_resolver);
+    } catch (Throwable $_) {
+      $this->type2->storeValueToMap($name, $value, $map, $use_resolver);
+    }
+  }
+
+  public function decodeValue($value, UseResolver $use_resolver) {
+    try {
+      return $this->type1->decodeValue($value, $use_resolver);
+    } catch (Throwable $_) {
+      return $this->type2->decodeValue($value, $use_resolver);
+    }
+  }
 }

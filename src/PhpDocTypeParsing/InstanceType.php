@@ -9,9 +9,6 @@
 
 namespace KPHP\PhpDocTypeParsing;
 
-use KPHP\MsgPackSerialization\InstanceDeserializer;
-use KPHP\MsgPackSerialization\InstanceSerializer;
-
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -43,7 +40,7 @@ class InstanceType extends PHPDocType {
    */
   public function fromUnpackedValue($value, UseResolver $use_resolver) {
     $resolved_class_name = $this->getResolvedClassName($use_resolver);
-    $parser              = new InstanceDeserializer($resolved_class_name);
+    $parser = new \KPHP\MsgPackSerialization\InstanceDeserializer($resolved_class_name);
     return $parser->fromUnpackedArray($value);
   }
 
@@ -57,9 +54,8 @@ class InstanceType extends PHPDocType {
 
   /**
    * @param mixed       $value
-   * @throws ReflectionException
    */
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  private function checkObject($value): void {
     if ($value === null) {
       return;
     }
@@ -67,17 +63,52 @@ class InstanceType extends PHPDocType {
     if (!is_object($value)) {
       self::throwRuntimeException($value, $this->type);
     }
+  }
 
+  private function checkUseResolver(object $serializer, UseResolver $use_resolver): void {
     $resolved_name = $this->getResolvedClassName($use_resolver);
-    $rc            = new ReflectionClass($resolved_name);
-    $parser        = new InstanceSerializer($value); // will verify values inside $value
-    if ($parser->instance_metadata->reflection_of_instance->getName() !== $rc->getName()) {
-      self::throwRuntimeException($rc->getName(), $this->type);
+    $reflection = new ReflectionClass($resolved_name);
+    if ($serializer->instance_metadata->reflection_of_instance->getName() !== $reflection->getName()) {
+      self::throwRuntimeException($reflection->getName(), $this->type);
     }
+  }
+
+  /**
+   * @param mixed       $value
+   * @throws ReflectionException
+   */
+  public function verifyValue($value, UseResolver $use_resolver): void {
+    if ($value === null) {
+      return;
+    }
+    $this->checkObject($value);
+    $parser = new \KPHP\MsgPackSerialization\InstanceSerializer($value); // will verify values inside $value
+    $this->checkUseResolver($parser, $use_resolver);
   }
 
   protected function hasInstanceInside(): bool {
     return true;
+  }
+
+  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    if ($value === null) {
+      return;
+    }
+    $this->checkObject($value);
+
+    $map_obj = [];
+    $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value);
+    $serializer->encode($map_obj);
+    #serialize empty object as '{}', not as '[]'
+    $map[$name] = $map_obj ?: (object)[];
+
+    $this->checkUseResolver($serializer, $use_resolver);
+  }
+
+  public function decodeValue($value, UseResolver $use_resolver) {
+    $resolved_class_name = $this->getResolvedClassName($use_resolver);
+    $deserializer = new \KPHP\JsonSerialization\InstanceDeserializer($resolved_class_name);
+    return $deserializer->decode($value);
   }
 }
 

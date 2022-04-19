@@ -209,6 +209,29 @@ function instance_to_array($instance, $with_class_names = false) {
   return to_array_debug($instance, $with_class_names);
 }
 
+class JsonEncoder {
+  public static function encode($instance) : string {
+    if ($instance === null) {
+      return "null";
+    }
+
+    $map = [];
+    $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance);
+    $serializer->encode($map);
+    return $map ? json_encode($map, JSON_PRESERVE_ZERO_FRACTION) : '{}';
+  }
+
+  public static function decode($json_string, $class_name) : ?object {
+    $map = json_decode($json_string, true);
+    if ($map === null) {
+      return null;
+    }
+
+    $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name);
+    return $deserializer->decode($map);
+  }
+}
+
 #endregion
 
 

@@ -53,7 +53,7 @@ class ArrayType extends PHPDocType {
    * @param mixed[] $arr
    * @throws RuntimeException
    */
-  public function fromUnpackedValue($arr, UseResolver $use_resolver): array {
+  private function traverseArray($arr, string $on_array_member, UseResolver $use_resolver): array {
     if (!is_array($arr)) {
       throw new RuntimeException('not instance: ' . $arr);
     }
@@ -65,15 +65,23 @@ class ArrayType extends PHPDocType {
     $res = [];
     foreach ($arr as $key => $value) {
       if ($this->cnt_arrays === 1) {
-        $res[$key] = $this->inner_type->fromUnpackedValue($value, $use_resolver);
+        $res[$key] = $this->inner_type->$on_array_member($value, $use_resolver);
       } else {
         $this->cnt_arrays -= 1;
-        $res[$key] = $this->fromUnpackedValue($value, $use_resolver);
+        $res[$key] = $this->$on_array_member($value, $use_resolver);
         $this->cnt_arrays += 1;
       }
     }
 
     return $res;
+  }
+
+  /**
+   * @param mixed[] $arr
+   * @throws RuntimeException
+   */
+  public function fromUnpackedValue($arr, UseResolver $use_resolver): array {
+    return $this->traverseArray($arr, "fromUnpackedValue", $use_resolver);
   }
 
   protected function hasInstanceInside(): bool {
@@ -94,6 +102,28 @@ class ArrayType extends PHPDocType {
         $this->cnt_arrays += 1;
       }
     }
+  }
+
+  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    if (!is_array($value)) {
+      throw new RuntimeException('not array: ' . $value);
+    }
+
+    $map_arr = [];
+    foreach ($value as $k => $v) {
+      if ($this->cnt_arrays === 1) {
+        $this->inner_type->storeValueToMap($k, $v, $map_arr, $use_resolver);
+      } else {
+        $this->cnt_arrays -= 1;
+        $this->storeValueToMap($k, $v, $map_arr, $use_resolver);
+        $this->cnt_arrays += 1;
+      }
+    }
+    $map[$name] = $map_arr;
+  }
+
+  public function decodeValue($arr, UseResolver $use_resolver): array {
+    return $this->traverseArray($arr, "decodeValue", $use_resolver);
   }
 }
 

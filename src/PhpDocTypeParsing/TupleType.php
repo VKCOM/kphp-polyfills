@@ -84,5 +84,13 @@ class TupleType extends PHPDocType {
       self::throwRuntimeException($value, $this->types);
     }
   }
+
+  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    // TODO
+  }
+
+  public function decodeValue($value, UseResolver $use_resolver) {
+    // TODO
+  }
 }
 
