@@ -13,6 +13,9 @@ use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 
+use KPHP\PhpDocTypeParsing\UseResolver;
+use KPHP\PhpDocTypeParsing\PHPDocType;
+
 class InstanceMetadata {
   /**@var FieldMetadata[] */
   public $fields_data = [];

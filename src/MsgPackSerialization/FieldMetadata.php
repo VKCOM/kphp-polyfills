@@ -5,6 +5,8 @@
 
 namespace KPHP\MsgPackSerialization;
 
+use KPHP\PhpDocTypeParsing\PHPDocType;
+
 class FieldMetadata {
   /** @var int */
   public $id = 0;

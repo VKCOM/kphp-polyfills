@@ -7,7 +7,10 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\MsgPackSerialization;
+namespace KPHP\PhpDocTypeParsing;
+
+use KPHP\MsgPackSerialization\InstanceDeserializer;
+use KPHP\MsgPackSerialization\InstanceSerializer;
 
 use ReflectionClass;
 use ReflectionException;

@@ -7,7 +7,7 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\MsgPackSerialization;
+namespace KPHP\PhpDocTypeParsing;
 
 use RuntimeException;
 
