@@ -1,9 +1,9 @@
 <?php
 // Compiler for PHP (aka KPHP) polyfills
-// Copyright (c) 2020 LLC «V Kontakte»
+// Copyright (c) 2020 LLC Â«V KontakteÂ»
 // Distributed under the GPL v3 License, see LICENSE.notice.txt
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
 class FieldMetadata {
   /** @var int */

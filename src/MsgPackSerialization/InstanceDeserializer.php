@@ -1,13 +1,13 @@
 <?php
 // Compiler for PHP (aka KPHP) polyfills
-// Copyright (c) 2020 LLC «V Kontakte»
+// Copyright (c) 2020 LLC Â«V KontakteÂ»
 // Distributed under the GPL v3 License, see LICENSE.notice.txt
 
 /** @noinspection NoTypeDeclarationInspection */
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
 use ReflectionClass;
 use ReflectionException;
