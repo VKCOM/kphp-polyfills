@@ -96,6 +96,8 @@ abstract class PHPDocType {
   abstract public function verifyValue($value, UseResolver $use_resolver): void;
 
   abstract protected function hasInstanceInside(): bool;
+  abstract protected function hasNullInside(): bool;
+  abstract protected function getDefaultValue();
 
   abstract public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void;
   abstract public function decodeValue($value, UseResolver $use_resolver);

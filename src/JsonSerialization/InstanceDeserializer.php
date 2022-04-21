@@ -39,7 +39,9 @@ class InstanceDeserializer {
 
       $property = $reflection->getProperty($field->name);
       $property->setAccessible(true);
-      $property->setValue($instance, $value);
+      if ($value !== null || ($property->hasType() && $property->getType()->allowsNull())) {
+        $property->setValue($instance, $value);
+      }
     }
     return $instance;
   }

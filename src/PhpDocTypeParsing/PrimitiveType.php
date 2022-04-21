@@ -96,12 +96,27 @@ class PrimitiveType extends PHPDocType {
     return false;
   }
 
+  protected function hasNullInside(): bool {
+    return $this->type === "null";
+  }
+
+  protected function getDefaultValue() {
+    settype($value, $this->type !== "mixed" ? $this->type : "null");
+    return $value;
+  }
+
   public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    if ($value === null) {
+      $value = $this->getDefaultValue();
+    }
     $this->verifyValue($value, $use_resolver);
     $map[$name] = $value;
   }
 
   public function decodeValue($value, UseResolver $use_resolver) {
+    if ($value === null) {
+      $value = $this->getDefaultValue();
+    }
     return $this->fromUnpackedValue($value, $use_resolver);
   }
 }

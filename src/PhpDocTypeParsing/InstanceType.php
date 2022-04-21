@@ -90,8 +90,17 @@ class InstanceType extends PHPDocType {
     return true;
   }
 
+  protected function hasNullInside(): bool {
+    return false;
+  }
+
+  protected function getDefaultValue() {
+    return null;
+  }
+
   public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
     if ($value === null) {
+      $map[$name] = $this->getDefaultValue();
       return;
     }
     $this->checkObject($value);
@@ -106,6 +115,9 @@ class InstanceType extends PHPDocType {
   }
 
   public function decodeValue($value, UseResolver $use_resolver) {
+    if ($value === null) {
+      return $this->getDefaultValue();
+    }
     $resolved_class_name = $this->getResolvedClassName($use_resolver);
     $deserializer = new \KPHP\JsonSerialization\InstanceDeserializer($resolved_class_name);
     return $deserializer->decode($value);

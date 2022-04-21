@@ -58,10 +58,6 @@ class ArrayType extends PHPDocType {
       throw new RuntimeException('not instance: ' . $arr);
     }
 
-    if (!$this->hasInstanceInside()) {
-      return $arr;
-    }
-
     $res = [];
     foreach ($arr as $key => $value) {
       if ($this->cnt_arrays === 1) {
@@ -88,6 +84,14 @@ class ArrayType extends PHPDocType {
     return $this->inner_type->hasInstanceInside();
   }
 
+  protected function hasNullInside(): bool {
+    return false;
+  }
+
+  protected function getDefaultValue() {
+    return [];
+  }
+
   public function verifyValue($array, UseResolver $use_resolver): void {
     if (!is_array($array)) {
       throw new RuntimeException('not instance: ' . $array);
@@ -105,6 +109,11 @@ class ArrayType extends PHPDocType {
   }
 
   public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    if ($value === null) {
+      $map[$name] = $this->getDefaultValue();
+      return;
+    }
+
     if (!is_array($value)) {
       throw new RuntimeException('not array: ' . $value);
     }
@@ -123,6 +132,9 @@ class ArrayType extends PHPDocType {
   }
 
   public function decodeValue($arr, UseResolver $use_resolver): array {
+    if ($arr === null) {
+      return $this->getDefaultValue();
+    }
     return $this->traverseArray($arr, "decodeValue", $use_resolver);
   }
 }

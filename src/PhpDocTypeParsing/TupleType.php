@@ -74,6 +74,10 @@ class TupleType extends PHPDocType {
     return in_array(true, array_map(fn(PHPDocType $type) => $type->hasInstanceInside(), $this->types), true);
   }
 
+  protected function hasNullInside(): bool {
+    return false;
+  }
+
   /** @param mixed $value */
   private function checkValue($value): void {
     if (!is_array($value)) {
@@ -86,6 +90,10 @@ class TupleType extends PHPDocType {
   }
 
   public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    // TODO
+  }
+
+  protected function getDefaultValue() {
     // TODO
   }
 

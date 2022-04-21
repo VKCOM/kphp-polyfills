@@ -48,7 +48,16 @@ class OrType extends PHPDocType {
     return $this->type1->hasInstanceInside() || $this->type2->hasInstanceInside();
   }
 
+  protected function hasNullInside(): bool {
+    return $this->type1->hasNullInside() || $this->type2->hasNullInside();
+  }
+
   public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+    if ($value === null) {
+      $map[$name] = $this->getDefaultValue();
+      return;
+    }
+
     try {
       $this->type1->storeValueToMap($name, $value, $map, $use_resolver);
     } catch (Throwable $_) {
@@ -56,7 +65,23 @@ class OrType extends PHPDocType {
     }
   }
 
+  protected function getDefaultValue() {
+    if ($this->hasNullInside()) {
+      return null;
+    }
+
+    try {
+      return $this->type1->getDefaultValue();
+    } catch (Throwable $_) {
+      return $this->type2->getDefaultValue();
+    }
+  }
+
   public function decodeValue($value, UseResolver $use_resolver) {
+    if ($value === null) {
+      return $this->getDefaultValue();
+    }
+
     try {
       return $this->type1->decodeValue($value, $use_resolver);
     } catch (Throwable $_) {

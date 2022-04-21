@@ -49,6 +49,6 @@ class InstanceSerializer {
   private function getValue(FieldMetadata $field, object $instance) {
     $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
     $property->setAccessible(true);
-    return $property->getValue($instance);
+    return $property->isInitialized($instance) ? $property->getValue($instance) : null;
   }
 }
