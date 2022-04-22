@@ -15,6 +15,9 @@ use ReflectionProperty;
 use RuntimeException;
 
 class InstanceDeserializer {
+  /** @var string */
+  public $encoder_name;
+
   /** @var InstanceMetadata */
   public $instance_metadata;
 
@@ -22,9 +25,10 @@ class InstanceDeserializer {
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function __construct(string $class_name) {
+  public function __construct(string $class_name, string $encoder_name) {
+    $this->encoder_name = $encoder_name;
     assert($class_name !== '' && $class_name !== 'self');
-    $this->instance_metadata = InstanceMetadataCache::getInstanceMetadata($class_name);
+    $this->instance_metadata = InstanceMetadataCache::getInstanceMetadata($class_name, $encoder_name);
   }
 
   public function decode(array $map) : object {
@@ -42,7 +46,7 @@ class InstanceDeserializer {
       if ($value === null && $this->hasPropertyDefaultValue($property)) {
         continue;
       }
-      $value = $field->phpdoc_type->decodeValue($value, $this->instance_metadata->use_resolver);
+      $value = $field->phpdoc_type->decodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver);
 
       $property->setAccessible(true);
       if ($value !== null || ($property->hasType() && $property->getType()->allowsNull())) {

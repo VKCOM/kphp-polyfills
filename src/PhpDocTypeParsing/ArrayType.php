@@ -53,18 +53,18 @@ class ArrayType extends PHPDocType {
    * @param mixed[] $arr
    * @throws RuntimeException
    */
-  private function traverseArray($arr, string $on_array_member, UseResolver $use_resolver): array {
+  private function traverseArray($arr, string $on_array_member, ...$on_array_member_args): array {
     if (!is_array($arr)) {
-      throw new RuntimeException('not instance: ' . $arr);
+      throw new RuntimeException('not array: ' . $arr);
     }
 
     $res = [];
     foreach ($arr as $key => $value) {
       if ($this->cnt_arrays === 1) {
-        $res[$key] = $this->inner_type->$on_array_member($value, $use_resolver);
+        $res[$key] = $this->inner_type->$on_array_member($value, ...$on_array_member_args);
       } else {
         $this->cnt_arrays -= 1;
-        $res[$key] = $this->$on_array_member($value, $use_resolver);
+        $res[$key] = $this->$on_array_member($value, ...$on_array_member_args);
         $this->cnt_arrays += 1;
       }
     }
@@ -108,7 +108,7 @@ class ArrayType extends PHPDocType {
     }
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
     if ($value === null) {
       $map[$name] = $this->getDefaultValue();
       return;
@@ -121,21 +121,21 @@ class ArrayType extends PHPDocType {
     $map_arr = [];
     foreach ($value as $k => $v) {
       if ($this->cnt_arrays === 1) {
-        $this->inner_type->storeValueToMap($k, $v, $map_arr, $use_resolver);
+        $this->inner_type->storeValueToMap($k, $v, $map_arr, $encoder_name, $use_resolver);
       } else {
         $this->cnt_arrays -= 1;
-        $this->storeValueToMap($k, $v, $map_arr, $use_resolver);
+        $this->storeValueToMap($k, $v, $map_arr, $encoder_name, $use_resolver);
         $this->cnt_arrays += 1;
       }
     }
     $map[$name] = $map_arr;
   }
 
-  public function decodeValue($arr, UseResolver $use_resolver): array {
+  public function decodeValue($arr, string $encoder_name, UseResolver $use_resolver): array {
     if ($arr === null) {
       return $this->getDefaultValue();
     }
-    return $this->traverseArray($arr, "decodeValue", $use_resolver);
+    return $this->traverseArray($arr, "decodeValue", $encoder_name, $use_resolver);
   }
 }
 

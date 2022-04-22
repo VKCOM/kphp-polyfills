@@ -98,7 +98,7 @@ class InstanceType extends PHPDocType {
     return null;
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
     if ($value === null) {
       $map[$name] = $this->getDefaultValue();
       return;
@@ -106,7 +106,7 @@ class InstanceType extends PHPDocType {
     $this->checkObject($value);
 
     $map_obj = [];
-    $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value);
+    $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value, $encoder_name);
     $serializer->encode($map_obj);
     #serialize empty object as '{}', not as '[]'
     $map[$name] = $map_obj ?: (object)[];
@@ -114,12 +114,12 @@ class InstanceType extends PHPDocType {
     $this->checkUseResolver($serializer, $use_resolver);
   }
 
-  public function decodeValue($value, UseResolver $use_resolver) {
+  public function decodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     if ($value === null) {
       return $this->getDefaultValue();
     }
     $resolved_class_name = $this->getResolvedClassName($use_resolver);
-    $deserializer = new \KPHP\JsonSerialization\InstanceDeserializer($resolved_class_name);
+    $deserializer = new \KPHP\JsonSerialization\InstanceDeserializer($resolved_class_name, $encoder_name);
     return $deserializer->decode($value);
   }
 }

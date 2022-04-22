@@ -32,13 +32,16 @@ class InstanceMetadata {
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function __construct(string $instance) {
+  public function __construct(string $instance, string $encoder_name) {
     assert(is_string($instance) && $instance !== '' && $instance !== 'self');
     $this->reflection_of_instance = new ReflectionClass($instance);
     $this->use_resolver           = new UseResolver($this->reflection_of_instance);
 
     $classPhpdoc = $this->reflection_of_instance->getDocComment();
-    $renamePolicy = self::parseFieldsRename($classPhpdoc);
+    $renamePolicy = self::parseFieldsRenameTag($classPhpdoc);
+    if ($renamePolicy === 'none') {
+      $renamePolicy = self::parseFieldsRenameEncoder($encoder_name);
+    }
 
     $unique_names = [];
     foreach ($this->reflection_of_instance->getProperties() as $property) {
@@ -111,15 +114,24 @@ class InstanceMetadata {
     return "";
   }
 
-  private static function parseFieldsRename(string $phpdoc): string {
-    if (!preg_match("/@kphp-json fields_rename=(\w+)/", $phpdoc, $matches)) {
-      return "none";
+  private static function validateFieldsRename(string $policy): void {
+    if (!in_array($policy, ["none", "snake_case", "camelCase"])) {
+      throw new RuntimeException("allowed values for kphp-json fields_rename=none|snake_case|camelCase, got: {$policy}");
     }
+  }
 
-    $policy = $matches[1];
-    if (in_array($policy, ["none", "snake_case", "camelCase"])) {
+  private static function parseFieldsRenameTag(string $phpdoc): string {
+    if (preg_match("/@kphp-json fields_rename=(\w+)/", $phpdoc, $matches)) {
+      $policy = $matches[1];
+      self::validateFieldsRename($policy);
       return $policy;
     }
-    throw new RuntimeException("allowed values for @kphp-json fields_rename=none|snake_case|camelCase, got: {$policy}");
+    return "none";
+  }
+
+  private static function parseFieldsRenameEncoder(string $encoder_name): string {
+    $policy = $encoder_name::fields_rename;
+    self::validateFieldsRename($policy);
+    return $policy;
   }
 }

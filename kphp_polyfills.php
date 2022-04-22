@@ -210,24 +210,26 @@ function instance_to_array($instance, $with_class_names = false) {
 }
 
 class JsonEncoder {
-  public static function encode($instance) : string {
+  const fields_rename = 'none';
+
+  public static function encode(?object $instance) : string {
     if ($instance === null) {
       return "null";
     }
 
     $map = [];
-    $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance);
+    $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
     $serializer->encode($map);
     return $map ? json_encode($map, JSON_PRESERVE_ZERO_FRACTION) : '{}';
   }
 
-  public static function decode($json_string, $class_name) : ?object {
+  public static function decode(string $json_string, string $class_name) : ?object {
     $map = json_decode($json_string, true);
     if ($map === null) {
       return null;
     }
 
-    $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name);
+    $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
     return $deserializer->decode($map);
   }
 }

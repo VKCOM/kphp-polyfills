@@ -52,16 +52,16 @@ class OrType extends PHPDocType {
     return $this->type1->hasNullInside() || $this->type2->hasNullInside();
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, UseResolver $use_resolver): void {
+  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
     if ($value === null) {
       $map[$name] = $this->getDefaultValue();
       return;
     }
 
     try {
-      $this->type1->storeValueToMap($name, $value, $map, $use_resolver);
+      $this->type1->storeValueToMap($name, $value, $map, $encoder_name, $use_resolver);
     } catch (Throwable $_) {
-      $this->type2->storeValueToMap($name, $value, $map, $use_resolver);
+      $this->type2->storeValueToMap($name, $value, $map, $encoder_name, $use_resolver);
     }
   }
 
@@ -77,15 +77,15 @@ class OrType extends PHPDocType {
     }
   }
 
-  public function decodeValue($value, UseResolver $use_resolver) {
+  public function decodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     if ($value === null) {
       return $this->getDefaultValue();
     }
 
     try {
-      return $this->type1->decodeValue($value, $use_resolver);
+      return $this->type1->decodeValue($value, $encoder_name, $use_resolver);
     } catch (Throwable $_) {
-      return $this->type2->decodeValue($value, $use_resolver);
+      return $this->type2->decodeValue($value, $encoder_name, $use_resolver);
     }
   }
 }

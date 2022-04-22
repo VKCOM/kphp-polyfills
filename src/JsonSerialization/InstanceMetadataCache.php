@@ -17,10 +17,11 @@ class InstanceMetadataCache {
   private static $instance_parsers = [];
 
   /** @throws ReflectionException */
-  public static function getInstanceMetadata(string $class_name): InstanceMetadata {
-    if (!array_key_exists($class_name, self::$instance_parsers)) {
-      self::$instance_parsers[$class_name] = new InstanceMetadata($class_name);
+  public static function getInstanceMetadata(string $class_name, string $encoder_name): InstanceMetadata {
+    $key = $class_name . '_' . $encoder_name;
+    if (!array_key_exists($key, self::$instance_parsers)) {
+      self::$instance_parsers[$key] = new InstanceMetadata($class_name, $encoder_name);
     }
-    return self::$instance_parsers[$class_name];
+    return self::$instance_parsers[$key];
   }
 }
