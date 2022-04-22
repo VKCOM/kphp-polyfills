@@ -9,6 +9,8 @@
 
 namespace KPHP\JsonSerialization;
 
+require_once 'VariableNamingStyle.php';
+
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -35,6 +37,9 @@ class InstanceMetadata {
     $this->reflection_of_instance = new ReflectionClass($instance);
     $this->use_resolver           = new UseResolver($this->reflection_of_instance);
 
+    $classPhpdoc = $this->reflection_of_instance->getDocComment();
+    $renamePolicy = self::parseFieldsRename($classPhpdoc);
+
     $unique_names = [];
     foreach ($this->reflection_of_instance->getProperties() as $property) {
       $curDocComment = $property->getDocComment();
@@ -42,20 +47,19 @@ class InstanceMetadata {
 
       $field = new FieldMetadata;
       $field->name = $curName;
-
-      if (preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches)) {
-        $field->rename = $matches[1];
-      }
+      $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip/", $curDocComment);
+
       if ($field->skip && $field->rename) {
         throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
       }
-      $name = $field->rename ?: $field->name;
-      if (in_array($name, $unique_names)) {
-        throw new RuntimeException("Duplicated @kphp-json rename={$name} property");
-      } else {
-        $unique_names[] = $name;
+
+      if (!$field->rename) {
+        $field->rename = self::applyRenamePolicy($field->name, $renamePolicy);
       }
+
+      $name = $field->rename ?: $field->name;
+      self::checkFieldsDuplication($name, $unique_names);
 
       // get type either from @var or from php 7.4 field type hint
       preg_match('/@var\s+([^\n]+)/', $curDocComment, $matches);
@@ -87,5 +91,35 @@ class InstanceMetadata {
       }
       $this->fields_data[] = $field;
     }
+  }
+
+  private static function checkFieldsDuplication(string $name, array &$unique_names): void {
+    if (in_array($name, $unique_names)) {
+      throw new RuntimeException("@kphp-json {$name} property met twice");
+    } else {
+      $unique_names[] = $name;
+    }
+  }
+
+  private static function applyRenamePolicy(string $name, string $renamePolicy): string {
+    if ($renamePolicy === "snake_case") {
+      return transform_to_snake_case($name);
+    }
+    if ($renamePolicy === "camelCase") {
+      return transform_to_camel_case($name);
+    }
+    return "";
+  }
+
+  private static function parseFieldsRename(string $phpdoc): string {
+    if (!preg_match("/@kphp-json fields_rename=(\w+)/", $phpdoc, $matches)) {
+      return "none";
+    }
+
+    $policy = $matches[1];
+    if (in_array($policy, ["none", "snake_case", "camelCase"])) {
+      return $policy;
+    }
+    throw new RuntimeException("allowed values for @kphp-json fields_rename=none|snake_case|camelCase, got: {$policy}");
   }
 }
