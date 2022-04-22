@@ -34,7 +34,10 @@ class InstanceDeserializer {
     foreach ($this->instance_metadata->fields_data as $field) {
       $name = $field->rename ?: $field->name;
       $value = $map[$name] ?? null;
-
+      if ($field->skip) {
+        # store default value in instance for skipped field
+        $value = null;
+      }
       $value = $field->phpdoc_type->decodeValue($value, $this->instance_metadata->use_resolver);
 
       $property = $reflection->getProperty($field->name);

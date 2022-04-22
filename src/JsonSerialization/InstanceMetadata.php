@@ -35,6 +35,7 @@ class InstanceMetadata {
     $this->reflection_of_instance = new ReflectionClass($instance);
     $this->use_resolver           = new UseResolver($this->reflection_of_instance);
 
+    $unique_names = [];
     foreach ($this->reflection_of_instance->getProperties() as $property) {
       $curDocComment = $property->getDocComment();
       $curName = $property->getName();
@@ -46,6 +47,15 @@ class InstanceMetadata {
         $field->rename = $matches[1];
       }
       $field->skip = (bool)preg_match("/@kphp-json skip/", $curDocComment);
+      if ($field->skip && $field->rename) {
+        throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
+      }
+      $name = $field->rename ?: $field->name;
+      if (in_array($name, $unique_names)) {
+        throw new RuntimeException("Duplicated @kphp-json rename={$name} property");
+      } else {
+        $unique_names[] = $name;
+      }
 
       // get type either from @var or from php 7.4 field type hint
       preg_match('/@var\s+([^\n]+)/', $curDocComment, $matches);
