@@ -38,14 +38,23 @@ class InstanceDeserializer {
         # store default value in instance for skipped field
         $value = null;
       }
+      $property = $reflection->getProperty($field->name);
+      if ($value === null && $this->hasPropertyDefaultValue($property)) {
+        continue;
+      }
       $value = $field->phpdoc_type->decodeValue($value, $this->instance_metadata->use_resolver);
 
-      $property = $reflection->getProperty($field->name);
       $property->setAccessible(true);
       if ($value !== null || ($property->hasType() && $property->getType()->allowsNull())) {
         $property->setValue($instance, $value);
       }
     }
     return $instance;
+  }
+
+  private function hasPropertyDefaultValue(ReflectionProperty $property): bool {
+    $properties = $property->getDeclaringClass()->getDefaultProperties();
+    $default = $properties[$property->name] ?? null;
+    return $default !== null;
   }
 }
