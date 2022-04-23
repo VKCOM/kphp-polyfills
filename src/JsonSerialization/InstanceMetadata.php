@@ -64,36 +64,47 @@ class InstanceMetadata {
       $name = $field->rename ?: $field->name;
       self::checkFieldsDuplication($name, $unique_names);
 
-      // get type either from @var or from php 7.4 field type hint
-      preg_match('/@var\s+([^\n]+)/', $curDocComment, $matches);
-      if (count($matches) > 1) {
-        $field->type = (string)$matches[1];
-      } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
-        $type = $property->getType();
-        $type_name = $type->getName();
+      $field->type = self::parsePropertyType($property);
+      $field->phpdoc_type = self::parsePHPDocType($field->type, $property);
 
-        if (!$type->isBuiltin() && $type_name[0] !== '\\') {
-          // Fix for https://github.com/VKCOM/kphp-polyfills/issues/35
-          // So UseResolver::resolveName will return the path as is.
-          $type_name = "\\{$type_name}";
-        }
-        if ($type->allowsNull()) {
-          $type_name = "?{$type_name}";
-        }
-
-        $field->type = $type_name;
-      }
-      if ($field->type === '') {
-        throw new RuntimeException("Can't detect type of field {$curName}");
-      }
-
-      $type_copy = $field->type;
-      $field->phpdoc_type = PHPDocType::parse($type_copy);
-      if ($field->phpdoc_type === null) {
-        throw new RuntimeException("Can't parse phpdoc of field {$curName}: {$field->type}");
-      }
       $this->fields_data[] = $field;
     }
+  }
+
+  private static function parsePropertyType($property): string {
+    $res_type = '';
+    // get type either from @var or from php 7.4 field type hint
+    preg_match('/@var\s+([^\n]+)/', $property->getDocComment(), $matches);
+    if (count($matches) > 1) {
+      $res_type = (string)$matches[1];
+    } else if (PHP_VERSION_ID >= 70400 && $property->hasType()) {
+      $type = $property->getType();
+      $type_name = $type->getName();
+
+      if (!$type->isBuiltin() && $type_name[0] !== '\\') {
+        // Fix for https://github.com/VKCOM/kphp-polyfills/issues/35
+        // So UseResolver::resolveName will return the path as is.
+        $type_name = "\\{$type_name}";
+      }
+      if ($type->allowsNull()) {
+        $type_name = "?{$type_name}";
+      }
+
+      $res_type = $type_name;
+    }
+    if ($res_type === '') {
+      throw new RuntimeException("Can't detect type of field {$property->getName()}");
+    }
+    return $res_type;
+  }
+
+  private static function parsePHPDocType(string $type, $property): ?PHPDocType {
+    $type_copy = $type;
+    $phpdoc_type = PHPDocType::parse($type_copy);
+    if ($phpdoc_type === null) {
+      throw new RuntimeException("Can't parse phpdoc of field {$property->getName()}: {$type}");
+    }
+    return $phpdoc_type;
   }
 
   private static function checkFieldsDuplication(string $name, array &$unique_names): void {
