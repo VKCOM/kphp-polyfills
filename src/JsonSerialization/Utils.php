@@ -5,6 +5,11 @@
 
 namespace KPHP\JsonSerialization;
 
+use ReflectionClass;
+use ReflectionProperty;
+use ReflectionException;
+use RuntimeException;
+
 function is_uppercase(string $str): bool {
   return (bool)preg_match('/^[A-Z]+$/', $str);
 }
@@ -47,4 +52,19 @@ function transform_to_camel_case(string $origin) : string {
   }
 
   return $name;
+}
+
+/**
+ * @throws ReflectionException
+ * @throws RuntimeException
+ */
+function get_class_property(ReflectionClass $reflection, string $name): ReflectionProperty {
+  # loop below allows to retrieve private properties of parent classes
+  while ($reflection && !$reflection->hasProperty($name)) {
+    $reflection = $reflection->getParentClass();
+  }
+  if (!$reflection) {
+    throw new RuntimeException("there is no property: `{$name}` in {$reflection->name} class");
+  }
+  return $reflection->getProperty($name);
 }

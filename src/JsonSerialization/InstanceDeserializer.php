@@ -38,11 +38,11 @@ class InstanceDeserializer {
     foreach ($this->instance_metadata->fields_data as $field) {
       $name = $field->rename ?: $field->name;
       $value = $map[$name] ?? null;
-      if ($field->skip) {
+      if ($field->skip || $field->skip_as_private) {
         # store default value in instance for skipped field
         $value = null;
       }
-      $property = $reflection->getProperty($field->name);
+      $property = get_class_property($reflection, $field->name);
       if ($value === null && $this->hasPropertyDefaultValue($property)) {
         continue;
       }

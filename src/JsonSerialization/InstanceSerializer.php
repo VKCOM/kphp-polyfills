@@ -34,11 +34,11 @@ class InstanceSerializer {
    */
   public function encode(array &$map) {
     foreach ($this->instance_metadata->fields_data as $field) {
-      if ($field->skip) {
+      if ($field->skip || $field->skip_as_private) {
         continue;
       }
       try {
-        $value = $this->getValue($field, $this->instance);
+        $value = $this->getValue($field->name, $this->instance);
         $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver);
         $map[$field->rename ?: $field->name] = $value;
       } catch (RuntimeException $e) {
@@ -50,9 +50,11 @@ class InstanceSerializer {
   /**
    * @return mixed
    * @throws ReflectionException
+   * @throws RuntimeException
    */
-  private function getValue(FieldMetadata $field, object $instance) {
-    $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
+  private function getValue(string $name, object $instance) {
+    $reflection = $this->instance_metadata->reflection_of_instance;
+    $property = get_class_property($reflection, $name);
     $property->setAccessible(true);
     return $property->isInitialized($instance) ? $property->getValue($instance) : null;
   }

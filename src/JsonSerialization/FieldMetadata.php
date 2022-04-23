@@ -17,6 +17,9 @@ class FieldMetadata {
   /** @var bool */
   public $skip = false;
 
+  /** @var bool */
+  public $skip_as_private = false;
+
   /**@var string */
   public $type = "";
 

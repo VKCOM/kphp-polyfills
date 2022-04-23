@@ -9,7 +9,7 @@
 
 namespace KPHP\JsonSerialization;
 
-require_once 'VariableNamingStyle.php';
+require_once 'Utils.php';
 
 use ReflectionClass;
 use ReflectionException;
@@ -60,6 +60,8 @@ class InstanceMetadata {
       $renamePolicy = self::parseFieldsRenameEncoder($encoder_name);
     }
 
+    $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || self::skipPrivateFieldsEncoder($encoder_name);
+
     $fields_data = [];
     $unique_names = [];
     foreach (self::get_current_class_properties($reflection) as $property) {
@@ -70,6 +72,7 @@ class InstanceMetadata {
       $field->name = $curName;
       $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip/", $curDocComment);
+      $field->skip_as_private = $skip_private_fields && !$property->isPublic();
 
       if ($field->skip && $field->rename) {
         throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
@@ -163,5 +166,26 @@ class InstanceMetadata {
     $policy = $encoder_name::fields_rename;
     self::validateFieldsRename($policy);
     return $policy;
+  }
+
+  private static function validateFieldsVisibility(string $visibility): void {
+    if (!in_array($visibility, ["all", "public"])) {
+      throw new RuntimeException("allowed values for kphp-json fields_visibility=all|public, got: {$visibility}");
+    }
+  }
+
+  private static function skipPrivateFieldsTag(string $phpdoc): bool {
+    if (preg_match("/@kphp-json fields_visibility=(\w+)/", $phpdoc, $matches)) {
+      $visibility = $matches[1];
+      self::validateFieldsVisibility($visibility);
+      return $visibility === 'public';
+    }
+    return false;
+  }
+
+  private static function skipPrivateFieldsEncoder(string $encoder_name): bool {
+    $visibility = $encoder_name::fields_visibility;
+    self::validateFieldsVisibility($visibility);
+    return $visibility === 'public';
   }
 }
