@@ -89,7 +89,7 @@ class TupleType extends PHPDocType {
     }
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     // TODO
   }
 

@@ -52,16 +52,15 @@ class OrType extends PHPDocType {
     return $this->type1->hasNullInside() || $this->type2->hasNullInside();
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     if ($value === null) {
-      $map[$name] = $this->getDefaultValue();
-      return;
+      return $this->getDefaultValue();
     }
 
     try {
-      $this->type1->storeValueToMap($name, $value, $map, $encoder_name, $use_resolver);
+      return $this->type1->encodeValue($value, $encoder_name, $use_resolver);
     } catch (Throwable $_) {
-      $this->type2->storeValueToMap($name, $value, $map, $encoder_name, $use_resolver);
+      return $this->type2->encodeValue($value, $encoder_name, $use_resolver);
     }
   }
 

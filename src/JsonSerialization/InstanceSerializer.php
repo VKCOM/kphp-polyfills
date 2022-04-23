@@ -39,7 +39,8 @@ class InstanceSerializer {
       }
       try {
         $value = $this->getValue($field, $this->instance);
-        $field->phpdoc_type->storeValueToMap($field->rename ?: $field->name, $value, $map, $this->encoder_name, $this->instance_metadata->use_resolver);
+        $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver);
+        $map[$field->rename ?: $field->name] = $value;
       } catch (RuntimeException $e) {
         throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
       }

@@ -99,6 +99,6 @@ abstract class PHPDocType {
   abstract protected function hasNullInside(): bool;
   abstract protected function getDefaultValue();
 
-  abstract public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void;
+  abstract public function encodeValue($value, string $encoder_name, UseResolver $use_resolver);
   abstract public function decodeValue($value, string $encoder_name, UseResolver $use_resolver);
 }

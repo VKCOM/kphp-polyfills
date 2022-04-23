@@ -108,27 +108,11 @@ class ArrayType extends PHPDocType {
     }
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     if ($value === null) {
-      $map[$name] = $this->getDefaultValue();
-      return;
+      return $this->getDefaultValue();
     }
-
-    if (!is_array($value)) {
-      throw new RuntimeException('not array: ' . $value);
-    }
-
-    $map_arr = [];
-    foreach ($value as $k => $v) {
-      if ($this->cnt_arrays === 1) {
-        $this->inner_type->storeValueToMap($k, $v, $map_arr, $encoder_name, $use_resolver);
-      } else {
-        $this->cnt_arrays -= 1;
-        $this->storeValueToMap($k, $v, $map_arr, $encoder_name, $use_resolver);
-        $this->cnt_arrays += 1;
-      }
-    }
-    $map[$name] = $map_arr;
+    return $this->traverseArray($value, "encodeValue", $encoder_name, $use_resolver);
   }
 
   public function decodeValue($arr, string $encoder_name, UseResolver $use_resolver): array {

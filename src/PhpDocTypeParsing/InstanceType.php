@@ -98,20 +98,20 @@ class InstanceType extends PHPDocType {
     return null;
   }
 
-  public function storeValueToMap(string $name, $value, array &$map, string $encoder_name, UseResolver $use_resolver): void {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
     if ($value === null) {
-      $map[$name] = $this->getDefaultValue();
-      return;
+      return $this->getDefaultValue();
     }
     $this->checkObject($value);
 
     $map_obj = [];
     $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value, $encoder_name);
     $serializer->encode($map_obj);
-    #serialize empty object as '{}', not as '[]'
-    $map[$name] = $map_obj ?: (object)[];
 
     $this->checkUseResolver($serializer, $use_resolver);
+
+    #serialize empty object as '{}', not as '[]'
+    return $map_obj ?: (object)[];
   }
 
   public function decodeValue($value, string $encoder_name, UseResolver $use_resolver) {
