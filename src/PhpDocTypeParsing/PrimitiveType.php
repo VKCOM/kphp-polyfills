@@ -105,7 +105,7 @@ class PrimitiveType extends PHPDocType {
     return $value;
   }
 
-  public function encodeValue($value, string $_, UseResolver $use_resolver, int $float_precision) {
+  public function encodeValue($value, string $_, UseResolver $use_resolver, int $float_precision, bool $array_as_hashmap = false) {
     if ($value === null) {
       $value = $this->getDefaultValue();
     }
@@ -113,6 +113,10 @@ class PrimitiveType extends PHPDocType {
     if ($this->type === 'float' && $float_precision) {
       // just truncate $value
       return (float)bcadd($value, 0, $float_precision);
+    }
+    //wtf why primitive type can be array?
+    if ($this->type === 'array' && $array_as_hashmap) {
+      return (object)$value;
     }
     return $value;
   }

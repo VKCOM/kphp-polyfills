@@ -98,7 +98,7 @@ class InstanceType extends PHPDocType {
     return null;
   }
 
-  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision) {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision, bool $_ = false) {
     if ($value === null) {
       return $this->getDefaultValue();
     }

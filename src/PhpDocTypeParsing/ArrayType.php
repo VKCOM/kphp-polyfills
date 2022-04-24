@@ -52,8 +52,9 @@ class ArrayType extends PHPDocType {
   /**
    * @param mixed[] $arr
    * @throws RuntimeException
+   * @return array|object
    */
-  private function traverseArray($arr, string $on_array_member, ...$on_array_member_args): array {
+  private function traverseArray($arr, bool $array_as_hashmap, string $on_array_member, ...$on_array_member_args) {
     if (!is_array($arr)) {
       throw new RuntimeException('not array: ' . $arr);
     }
@@ -68,8 +69,8 @@ class ArrayType extends PHPDocType {
         $this->cnt_arrays += 1;
       }
     }
-
-    return $res;
+    #such trick allows to serialize array(even it is vector) to json format as json object further
+    return $array_as_hashmap ? (object)$res : $res;
   }
 
   /**
@@ -77,7 +78,7 @@ class ArrayType extends PHPDocType {
    * @throws RuntimeException
    */
   public function fromUnpackedValue($arr, UseResolver $use_resolver): array {
-    return $this->traverseArray($arr, "fromUnpackedValue", $use_resolver);
+    return $this->traverseArray($arr, false, "fromUnpackedValue", $use_resolver);
   }
 
   protected function hasInstanceInside(): bool {
@@ -108,18 +109,19 @@ class ArrayType extends PHPDocType {
     }
   }
 
-  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision) {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision, bool $array_as_hashmap = false) {
     if ($value === null) {
-      return $this->getDefaultValue();
+      #such trick allows to serialize empty array to json format as json object further
+      return $array_as_hashmap ? (object)$this->getDefaultValue() : $this->getDefaultValue();
     }
-    return $this->traverseArray($value, "encodeValue", $encoder_name, $use_resolver, $float_precision);
+    #don't propagate $array_as_hashmap to further call chain
+    return $this->traverseArray($value, $array_as_hashmap, "encodeValue", $encoder_name, $use_resolver, $float_precision);
   }
 
   public function decodeValue($arr, string $encoder_name, UseResolver $use_resolver): array {
     if ($arr === null) {
       return $this->getDefaultValue();
     }
-    return $this->traverseArray($arr, "decodeValue", $encoder_name, $use_resolver);
+    return $this->traverseArray($arr, false, "decodeValue", $encoder_name, $use_resolver);
   }
 }
-

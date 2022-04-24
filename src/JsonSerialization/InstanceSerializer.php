@@ -45,8 +45,8 @@ class InstanceSerializer {
         if ($field->skip_if_default && $value === self::getPropertyDefaultValue($property)) {
           continue;
         }
-        $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name,
-          $this->instance_metadata->use_resolver, $field->float_precision ?: $float_precision);
+        $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver,
+          $field->float_precision ?: $float_precision, $field->array_as_hashmap);
         $map[$field->rename ?: $field->name] = $value;
       } catch (RuntimeException $e) {
         throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
