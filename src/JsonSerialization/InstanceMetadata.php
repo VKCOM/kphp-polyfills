@@ -75,16 +75,16 @@ class InstanceMetadata {
       $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->skip_as_private = $skip_private_fields && !$property->isPublic();
-      $field->skip_if_default = self::parseSkipIfDefaultTag($curDocComment) || $class_skip_if_default;
-      $field->float_precision = self::parseFloatPrecisionTag($curDocComment) ?: $class_float_precision;
+      $field->skip_if_default = self::parseSkipIfDefaultTag($curDocComment);
+      $field->float_precision = self::parseFloatPrecisionTag($curDocComment);
 
-      if ($field->skip && $field->rename) {
-        throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
+      if ($field->skip && ($field->rename || $field->skip_if_default || $field->float_precision)) {
+        throw new RuntimeException("'skip' can't be used together with 'rename|skip_if_default|float_precision' in kphp-json tag");
       }
 
-      if (!$field->rename) {
-        $field->rename = self::applyRenamePolicy($field->name, $renamePolicy);
-      }
+      $field->rename = $field->rename ?: self::applyRenamePolicy($field->name, $renamePolicy);
+      $field->skip_if_default = $field->skip_if_default || $class_skip_if_default;
+      $field->float_precision = $field->float_precision ?: $class_float_precision;
 
       $name = $field->rename ?: $field->name;
       self::checkFieldsDuplication($name, $unique_names);
