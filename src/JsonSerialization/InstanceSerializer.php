@@ -9,6 +9,7 @@
 
 namespace KPHP\JsonSerialization;
 
+use ReflectionProperty;
 use ReflectionException;
 use RuntimeException;
 
@@ -38,7 +39,12 @@ class InstanceSerializer {
         continue;
       }
       try {
-        $value = $this->getValue($field->name, $this->instance);
+        $reflection = $this->instance_metadata->reflection_of_instance;
+        $property = get_class_property($reflection, $field->name);
+        $value = self::getValue($property, $this->instance);
+        if ($field->skip_if_default && $value === self::getPropertyDefaultValue($property)) {
+          continue;
+        }
         $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver);
         $map[$field->rename ?: $field->name] = $value;
       } catch (RuntimeException $e) {
@@ -52,10 +58,14 @@ class InstanceSerializer {
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  private function getValue(string $name, object $instance) {
-    $reflection = $this->instance_metadata->reflection_of_instance;
-    $property = get_class_property($reflection, $name);
+  private static function getValue(ReflectionProperty $property, object $instance) {
     $property->setAccessible(true);
     return $property->isInitialized($instance) ? $property->getValue($instance) : null;
+  }
+
+  private static function getPropertyDefaultValue(ReflectionProperty $property) {
+    $properties = $property->getDeclaringClass()->getDefaultProperties();
+    $default = $properties[$property->name] ?? null;
+    return $default;
   }
 }

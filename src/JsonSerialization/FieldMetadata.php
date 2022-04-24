@@ -20,6 +20,9 @@ class FieldMetadata {
   /** @var bool */
   public $skip_as_private = false;
 
+  /** @var bool */
+  public $skip_if_default = false;
+
   /**@var string */
   public $type = "";
 

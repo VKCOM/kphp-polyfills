@@ -212,6 +212,7 @@ function instance_to_array($instance, $with_class_names = false) {
 class JsonEncoder {
   const fields_rename = 'none';
   const fields_visibility = 'all';
+  const skip_if_default = false;
 
   public static function encode(?object $instance) : string {
     if ($instance === null) {

@@ -61,6 +61,7 @@ class InstanceMetadata {
     }
 
     $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || self::skipPrivateFieldsEncoder($encoder_name);
+    $class_skip_if_default = self::parseSkipIfDefaultTag($classPhpdoc) || self::parseSkipIfDefaultEncoder($encoder_name);
 
     $fields_data = [];
     $unique_names = [];
@@ -71,8 +72,9 @@ class InstanceMetadata {
       $field = new FieldMetadata;
       $field->name = $curName;
       $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
-      $field->skip = (bool)preg_match("/@kphp-json skip/", $curDocComment);
+      $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->skip_as_private = $skip_private_fields && !$property->isPublic();
+      $field->skip_if_default = $class_skip_if_default || self::parseSkipIfDefaultTag($curDocComment);
 
       if ($field->skip && $field->rename) {
         throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
@@ -187,5 +189,24 @@ class InstanceMetadata {
     $visibility = $encoder_name::fields_visibility;
     self::validateFieldsVisibility($visibility);
     return $visibility === 'public';
+  }
+
+  private static function validateSkipIfDefault(string $skip): void {
+    if (!in_array($skip, ["true", "false"])) {
+      throw new RuntimeException("allowed values for kphp-json skip_if_default=true|false, got: {$skip}");
+    }
+  }
+
+  private static function parseSkipIfDefaultTag(string $phpdoc): bool {
+    if (preg_match("/@kphp-json skip_if_default=(\w+)/", $phpdoc, $matches)) {
+      $skip = $matches[1];
+      self::validateSkipIfDefault($skip);
+      return $skip === 'true';
+    }
+    return false;
+  }
+
+  private static function parseSkipIfDefaultEncoder(string $encoder_name): bool {
+    return $encoder_name::skip_if_default;
   }
 }
