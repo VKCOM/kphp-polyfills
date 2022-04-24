@@ -108,11 +108,11 @@ class ArrayType extends PHPDocType {
     }
   }
 
-  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision) {
     if ($value === null) {
       return $this->getDefaultValue();
     }
-    return $this->traverseArray($value, "encodeValue", $encoder_name, $use_resolver);
+    return $this->traverseArray($value, "encodeValue", $encoder_name, $use_resolver, $float_precision);
   }
 
   public function decodeValue($arr, string $encoder_name, UseResolver $use_resolver): array {

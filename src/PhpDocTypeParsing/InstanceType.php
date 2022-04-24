@@ -98,7 +98,7 @@ class InstanceType extends PHPDocType {
     return null;
   }
 
-  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision) {
     if ($value === null) {
       return $this->getDefaultValue();
     }
@@ -106,7 +106,7 @@ class InstanceType extends PHPDocType {
 
     $map_obj = [];
     $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value, $encoder_name);
-    $serializer->encode($map_obj);
+    $serializer->encode($map_obj, $float_precision);
 
     $this->checkUseResolver($serializer, $use_resolver);
 

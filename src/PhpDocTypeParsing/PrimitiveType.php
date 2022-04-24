@@ -105,11 +105,15 @@ class PrimitiveType extends PHPDocType {
     return $value;
   }
 
-  public function encodeValue($value, string $_, UseResolver $use_resolver) {
+  public function encodeValue($value, string $_, UseResolver $use_resolver, int $float_precision) {
     if ($value === null) {
       $value = $this->getDefaultValue();
     }
     $this->verifyValue($value, $use_resolver);
+    if ($this->type === 'float' && $float_precision) {
+      // just truncate $value
+      return (float)bcadd($value, 0, $float_precision);
+    }
     return $value;
   }
 

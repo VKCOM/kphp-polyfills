@@ -213,6 +213,7 @@ class JsonEncoder {
   const fields_rename = 'none';
   const fields_visibility = 'all';
   const skip_if_default = false;
+  const float_precision = 0;
 
   public static function encode(?object $instance) : string {
     if ($instance === null) {

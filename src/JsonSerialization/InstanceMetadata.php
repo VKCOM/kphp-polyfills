@@ -62,6 +62,7 @@ class InstanceMetadata {
 
     $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || self::skipPrivateFieldsEncoder($encoder_name);
     $class_skip_if_default = self::parseSkipIfDefaultTag($classPhpdoc) || self::parseSkipIfDefaultEncoder($encoder_name);
+    $class_float_precision = self::parseFloatPrecisionTag($classPhpdoc) ?: self::parseFloatPrecisionEncoder($encoder_name);
 
     $fields_data = [];
     $unique_names = [];
@@ -74,7 +75,8 @@ class InstanceMetadata {
       $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->skip_as_private = $skip_private_fields && !$property->isPublic();
-      $field->skip_if_default = $class_skip_if_default || self::parseSkipIfDefaultTag($curDocComment);
+      $field->skip_if_default = self::parseSkipIfDefaultTag($curDocComment) || $class_skip_if_default;
+      $field->float_precision = self::parseFloatPrecisionTag($curDocComment) ?: $class_float_precision;
 
       if ($field->skip && $field->rename) {
         throw new RuntimeException("Unable to use @kphp-json skip and @kphp-json rename together");
@@ -208,5 +210,26 @@ class InstanceMetadata {
 
   private static function parseSkipIfDefaultEncoder(string $encoder_name): bool {
     return $encoder_name::skip_if_default;
+  }
+
+  private static function validateFloatPrecision(int $precision): void {
+    if ($precision < 0) {
+      throw new RuntimeException("kphp-json float_precision should be non negative integer, got: {$precision}");
+    }
+  }
+
+  private static function parseFloatPrecisionTag(string $phpdoc): int {
+    if (preg_match("/@kphp-json float_precision=(-?\d+)/", $phpdoc, $matches)) {
+      $precision = (int)$matches[1];
+      self::validateFloatPrecision($precision);
+      return $precision;
+    }
+    return 0;
+  }
+
+  private static function parseFloatPrecisionEncoder(string $encoder_name): int {
+    $precision = $encoder_name::float_precision;
+    self::validateFloatPrecision($precision);
+    return $precision;
   }
 }

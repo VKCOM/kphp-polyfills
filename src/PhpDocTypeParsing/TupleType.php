@@ -89,7 +89,7 @@ class TupleType extends PHPDocType {
     }
   }
 
-  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver) {
+  public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision) {
     // TODO
   }
 

@@ -99,6 +99,6 @@ abstract class PHPDocType {
   abstract protected function hasNullInside(): bool;
   abstract protected function getDefaultValue();
 
-  abstract public function encodeValue($value, string $encoder_name, UseResolver $use_resolver);
+  abstract public function encodeValue($value, string $encoder_name, UseResolver $use_resolver, int $float_precision);
   abstract public function decodeValue($value, string $encoder_name, UseResolver $use_resolver);
 }
