@@ -110,11 +110,15 @@ class PrimitiveType extends PHPDocType {
       $value = $this->getDefaultValue();
     }
     $this->verifyValue($value, $use_resolver);
+    if ($this->type === 'float' && (is_nan($value) || is_infinite($value))) {
+      // json_encode() can't deal with nan or infs
+      return 0.0;
+    }
     if ($this->type === 'float' && $float_precision) {
       // just truncate $value
       return (float)bcadd($value, 0, $float_precision);
     }
-    //wtf why primitive type can be array?
+    // wtf why primitive type can be array?
     if ($this->type === 'array' && $array_as_hashmap) {
       return (object)$value;
     }
