@@ -215,13 +215,16 @@ class JsonEncoder {
   const skip_if_default = false;
   const float_precision = 0;
 
-  public static function encode(?object $instance, bool $pretty_print = false) : string {
+  public static function encode(?object $instance, bool $pretty_print = false, array $metadata = []) : string {
     if ($instance === null) {
       return "null";
     }
 
     $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
     $map = $serializer->encode(true);
+    if ($metadata) {
+      $map = self::mergemetadata($map, $metadata);
+    }
     return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
   }
 
@@ -233,6 +236,15 @@ class JsonEncoder {
 
     $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
     return $deserializer->decode($map, true);
+  }
+
+  private static function mergeMetadata($map, array $metadata) {
+    if (is_array($map)) {
+      return array_merge($map, $metadata);
+    }
+    #this mean that $map is just empty stdClass that can be ignored;
+    #empty stdClass allow to serialize empty php array as json object
+    return $metadata;
   }
 }
 
