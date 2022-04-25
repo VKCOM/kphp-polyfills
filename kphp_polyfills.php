@@ -216,26 +216,30 @@ class JsonEncoder {
   const float_precision = 0;
 
   public static function encode(?object $instance, bool $pretty_print = false, array $metadata = []) : string {
-    if ($instance === null) {
-      return "null";
-    }
+    return _php_serialize_helper_run_or_warning(static function() use ($instance, $pretty_print, $metadata) {
+      if ($instance === null) {
+        return "null";
+      }
 
-    $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
-    $map = $serializer->encode(true);
-    if ($metadata) {
-      $map = self::mergemetadata($map, $metadata);
-    }
-    return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
+      $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
+      $map = $serializer->encode(true);
+      if ($metadata) {
+        $map = self::mergemetadata($map, $metadata);
+      }
+      return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
+    });
   }
 
   public static function decode(string $json_string, string $class_name) : ?object {
-    $map = json_decode($json_string, true);
-    if ($map === null) {
-      return null;
-    }
+    return _php_serialize_helper_run_or_warning(static function() use ($json_string, $class_name) {
+      $map = json_decode($json_string, true);
+      if ($map === null) {
+        return null;
+      }
 
-    $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
-    return $deserializer->decode($map, true);
+      $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
+      return $deserializer->decode($map, true);
+    });
   }
 
   private static function mergeMetadata($map, array $metadata) {
