@@ -215,14 +215,14 @@ class JsonEncoder {
   const skip_if_default = false;
   const float_precision = 0;
 
-  public static function encode(?object $instance) : string {
+  public static function encode(?object $instance, bool $pretty_print = false) : string {
     if ($instance === null) {
       return "null";
     }
 
     $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
     $map = $serializer->encode(true);
-    return json_encode($map, JSON_PRESERVE_ZERO_FRACTION);
+    return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
   }
 
   public static function decode(string $json_string, string $class_name) : ?object {
