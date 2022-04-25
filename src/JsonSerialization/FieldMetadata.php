@@ -29,6 +29,9 @@ class FieldMetadata {
   /** @var bool */
   public $array_as_hashmap = false;
 
+  /** @var bool */
+  public $required = false;
+
   /**@var string */
   public $type = "";
 

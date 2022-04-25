@@ -78,12 +78,14 @@ class InstanceMetadata {
       $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->array_as_hashmap = (bool)preg_match("/@kphp-json array_as_hashmap\s+/", $curDocComment);
+      $field->required = (bool)preg_match("/@kphp-json required\s+/", $curDocComment);
       $field->skip_as_private = $skip_private_fields && !$property->isPublic();
       $field->skip_if_default = self::parseSkipIfDefaultTag($curDocComment);
       $field->float_precision = self::parseFloatPrecisionTag($curDocComment);
 
-      if ($field->skip && ($field->rename || $field->skip_if_default || $field->float_precision || $field->array_as_hashmap)) {
-        throw new RuntimeException("'skip' can't be used together with 'rename|skip_if_default|float_precision|array_as_hashmap' in kphp-json tag");
+      if ($field->skip && ($field->rename || $field->skip_if_default ||
+          $field->float_precision || $field->array_as_hashmap || $field->required)) {
+        throw new RuntimeException("'skip' can't be used together with other @kphp-json tags");
       }
 
       $field->rename = $field->rename ?: self::applyRenamePolicy($field->name, $renamePolicy);

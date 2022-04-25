@@ -49,6 +49,9 @@ class InstanceDeserializer {
   private function decodeRegularClass(array $map, ReflectionClass $reflection, object $instance): void {
     foreach ($this->instance_metadata->fields_data as $field) {
       $name = $field->rename ?: $field->name;
+      if (!array_key_exists($name, $map) && $field->required) {
+        throw new RuntimeException("absent required field $field->name for class $reflection->name");
+      }
       $value = $map[$name] ?? null;
       $this->decodeImpl($field, $reflection, $instance, $value);
     }
