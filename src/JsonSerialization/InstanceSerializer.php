@@ -51,7 +51,7 @@ class InstanceSerializer {
   private function encodeRegularClass(int $float_precision) {
     $map = [];
     foreach ($this->instance_metadata->fields_data as $field) {
-      [$skip, $value] = $this->encodeImpl($field, $float_precision);
+      [$skip, $value] = $this->encodeImpl($field, $field->float_precision ?: $float_precision);
       if (!$skip) {
         $map[$field->rename ?: $field->name] = $value;
       }
@@ -91,8 +91,8 @@ class InstanceSerializer {
         $skip = true;
         return [$skip, null];
       }
-      $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name, $this->instance_metadata->use_resolver,
-        $field->float_precision ?: $float_precision, $field->array_as_hashmap);
+      $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name,
+        $this->instance_metadata->use_resolver, $float_precision, $field->array_as_hashmap);
       return [$skip, $value];
     } catch (RuntimeException $e) {
       throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
