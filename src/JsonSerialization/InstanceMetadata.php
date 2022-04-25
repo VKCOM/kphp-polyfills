@@ -28,6 +28,9 @@ class InstanceMetadata {
   /**@var ?UseResolver */
   public $use_resolver = null;
 
+  /** @var bool */
+  public $flatten_class = false;
+
   /**
    * @throws ReflectionException
    * @throws RuntimeException
@@ -40,7 +43,7 @@ class InstanceMetadata {
     $this->use_resolver = new UseResolver($this->reflection_of_instance);
 
     while ($reflection) {
-      $fields_data = self::read_current_class_properties($reflection, $encoder_name);
+      [$fields_data, $this->flatten_class] = self::read_current_class_properties($reflection, $encoder_name);
       array_push($this->fields_data, ...$fields_data);
       $reflection = $reflection->getParentClass();
     }
@@ -52,7 +55,6 @@ class InstanceMetadata {
     return array_diff($all_props, $base_props);
   }
 
-  /** @return FieldMetadata[] */
   private static function read_current_class_properties(ReflectionClass $reflection, string $encoder_name) {
     $classPhpdoc = $reflection->getDocComment();
     $renamePolicy = self::parseFieldsRenameTag($classPhpdoc);
@@ -63,6 +65,7 @@ class InstanceMetadata {
     $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || self::skipPrivateFieldsEncoder($encoder_name);
     $class_skip_if_default = self::parseSkipIfDefaultTag($classPhpdoc) || self::parseSkipIfDefaultEncoder($encoder_name);
     $class_float_precision = self::parseFloatPrecisionTag($classPhpdoc) ?: self::parseFloatPrecisionEncoder($encoder_name);
+    $flatten_class = self::parseFlattenTag($reflection, $classPhpdoc);
 
     $fields_data = [];
     $unique_names = [];
@@ -95,7 +98,7 @@ class InstanceMetadata {
 
       $fields_data[] = $field;
     }
-    return $fields_data;
+    return [$fields_data, $flatten_class];
   }
 
   private static function parsePropertyType($property): string {
@@ -232,5 +235,16 @@ class InstanceMetadata {
     $precision = $encoder_name::float_precision;
     self::validateFloatPrecision($precision);
     return $precision;
+  }
+
+  private static function parseFlattenTag(ReflectionClass $reflection, string $phpdoc): bool {
+    $flatten_class = (bool)preg_match("/@kphp-json flatten\s+/", $phpdoc);
+    if ($flatten_class && $reflection->getParentClass()) {
+      throw new RuntimeException("class marked as @kphp-json flatten can't have parent. Class name {$reflection->getName()}");
+    }
+    if ($flatten_class && count($reflection->getProperties()) !== 1) {
+      throw new RuntimeException("class marked as @kphp-json flatten should have only one field. Class name {$reflection->getName()}");
+    }
+    return $flatten_class;
   }
 }

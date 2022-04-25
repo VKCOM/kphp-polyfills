@@ -220,10 +220,9 @@ class JsonEncoder {
       return "null";
     }
 
-    $map = [];
     $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
-    $serializer->encode($map);
-    return $map ? json_encode($map, JSON_PRESERVE_ZERO_FRACTION) : '{}';
+    $map = $serializer->encode(true);
+    return json_encode($map, JSON_PRESERVE_ZERO_FRACTION);
   }
 
   public static function decode(string $json_string, string $class_name) : ?object {
@@ -233,7 +232,7 @@ class JsonEncoder {
     }
 
     $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
-    return $deserializer->decode($map);
+    return $deserializer->decode($map, true);
   }
 }
 

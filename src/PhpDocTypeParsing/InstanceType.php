@@ -103,15 +103,9 @@ class InstanceType extends PHPDocType {
       return $this->getDefaultValue();
     }
     $this->checkObject($value);
-
-    $map_obj = [];
     $serializer = new \KPHP\JsonSerialization\InstanceSerializer($value, $encoder_name);
-    $serializer->encode($map_obj, $float_precision);
-
     $this->checkUseResolver($serializer, $use_resolver);
-
-    #serialize empty object as '{}', not as '[]'
-    return $map_obj ?: (object)[];
+    return $serializer->encode(false, $float_precision);
   }
 
   public function decodeValue($value, string $encoder_name, UseResolver $use_resolver) {
