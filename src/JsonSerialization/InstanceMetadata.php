@@ -12,6 +12,7 @@ namespace KPHP\JsonSerialization;
 require_once 'Utils.php';
 
 use ReflectionClass;
+use ReflectionProperty;
 use ReflectionException;
 use RuntimeException;
 
@@ -43,19 +44,29 @@ class InstanceMetadata {
     $this->use_resolver = new UseResolver($this->reflection_of_instance);
 
     while ($reflection) {
-      [$fields_data, $this->flatten_class] = self::read_current_class_properties($reflection, $encoder_name);
+      [$fields_data, $this->flatten_class] = self::readCurrentClassProperties($reflection, $encoder_name);
       array_push($this->fields_data, ...$fields_data);
       $reflection = $reflection->getParentClass();
     }
   }
 
-  private static function get_current_class_properties(ReflectionClass $ref)  {
+  private static function checkKphpJsonTag(ReflectionProperty $property): void {
+    if (preg_match("/@kphp-json\s/", $property->getDocComment())) {
+      throw new RuntimeException("@kphp-json is allowed only for instance fields: {$property->name}");
+    }
+  }
+
+  private static function isStaticProperty(ReflectionClass $reflection, ReflectionProperty $property): bool {
+    return array_key_exists($property->getName(), $reflection->getStaticProperties());
+  }
+
+  private static function getCurrentClassProperties(ReflectionClass $ref)  {
     $all_props = $ref->getProperties();
     $base_props = $ref->getParentClass() ? $ref->getParentClass()->getProperties() : [];
     return array_diff($all_props, $base_props);
   }
 
-  private static function read_current_class_properties(ReflectionClass $reflection, string $encoder_name) {
+  private static function readCurrentClassProperties(ReflectionClass $reflection, string $encoder_name) {
     $classPhpdoc = $reflection->getDocComment();
     $renamePolicy = self::parseFieldsRenameTag($classPhpdoc);
     if ($renamePolicy === 'none') {
@@ -69,7 +80,12 @@ class InstanceMetadata {
 
     $fields_data = [];
     $unique_names = [];
-    foreach (self::get_current_class_properties($reflection) as $property) {
+    foreach (self::getCurrentClassProperties($reflection) as $property) {
+      if (self::isStaticProperty($reflection, $property)) {
+        self::checkKphpJsonTag($property);
+        continue;
+      }
+
       $curDocComment = $property->getDocComment();
       $curName = $property->getName();
 
