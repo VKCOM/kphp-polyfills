@@ -232,7 +232,7 @@ class JsonEncoder {
 
   public static function decode(string $json_string, string $class_name) : ?object {
     return _php_serialize_helper_run_or_warning(static function() use ($json_string, $class_name) {
-      $map = json_decode($json_string, true);
+      $map = json_decode($json_string, false);
       if ($map === null) {
         return null;
       }

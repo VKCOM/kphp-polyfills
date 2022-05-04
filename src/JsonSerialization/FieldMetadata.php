@@ -32,6 +32,9 @@ class FieldMetadata {
   /** @var bool */
   public $required = false;
 
+  /** @var bool */
+  public $raw_string = false;
+
   /**@var string */
   public $type = "";
 

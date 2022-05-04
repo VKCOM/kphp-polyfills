@@ -93,6 +93,11 @@ class InstanceSerializer {
       }
       $value = $field->phpdoc_type->encodeValue($value, $this->encoder_name,
         $this->instance_metadata->use_resolver, $float_precision, $field->array_as_hashmap);
+
+      if ($field->raw_string) {
+        $value = json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+      }
+
       return [$skip, $value];
     } catch (RuntimeException $e) {
       throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);

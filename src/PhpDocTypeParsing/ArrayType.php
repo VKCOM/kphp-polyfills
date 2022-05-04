@@ -10,6 +10,7 @@
 namespace KPHP\PhpDocTypeParsing;
 
 use RuntimeException;
+use stdClass;
 
 class ArrayType extends PHPDocType {
   /**@var ?PHPDocType */
@@ -121,6 +122,9 @@ class ArrayType extends PHPDocType {
   public function decodeValue($arr, string $encoder_name, UseResolver $use_resolver): array {
     if ($arr === null) {
       return $this->getDefaultValue();
+    }
+    if ($arr instanceof stdClass) {
+      $arr = (array)$arr;
     }
     return $this->traverseArray($arr, false, "decodeValue", $encoder_name, $use_resolver);
   }

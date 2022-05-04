@@ -10,6 +10,7 @@
 namespace KPHP\PhpDocTypeParsing;
 
 use RuntimeException;
+use stdClass;
 
 class PrimitiveType extends PHPDocType {
   /**@var string[] */
@@ -128,6 +129,10 @@ class PrimitiveType extends PHPDocType {
   public function decodeValue($value, string $_, UseResolver $use_resolver) {
     if ($value === null) {
       $value = $this->getDefaultValue();
+    }
+    // wtf why primitive type can be array?
+    if ($this->type === 'array' && $value instanceof stdClass) {
+      $value = (array)$value;
     }
     return $this->fromUnpackedValue($value, $use_resolver);
   }
