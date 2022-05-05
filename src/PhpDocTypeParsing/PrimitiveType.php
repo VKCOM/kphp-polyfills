@@ -116,8 +116,7 @@ class PrimitiveType extends PHPDocType {
       return 0.0;
     }
     if ($this->type === 'float' && $float_precision) {
-      // just truncate $value
-      return (float)bcadd($value, 0, $float_precision);
+      return round($value, $float_precision);
     }
     // wtf why primitive type can be array?
     if ($this->type === 'array' && $array_as_hashmap) {
