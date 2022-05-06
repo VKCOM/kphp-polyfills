@@ -95,7 +95,7 @@ class InstanceMetadata {
       $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->array_as_hashmap = (bool)preg_match("/@kphp-json array_as_hashmap\s+/", $curDocComment);
       $field->required = (bool)preg_match("/@kphp-json required\s+/", $curDocComment);
-      $field->raw_string = (bool)preg_match("/@kphp-json raw-string\s+/", $curDocComment);
+      $field->raw_string = (bool)preg_match("/@kphp-json raw_string\s+/", $curDocComment);
       $field->skip_as_private = $skip_private_fields && !$property->isPublic();
       $field->skip_if_default = self::parseSkipIfDefaultTag($curDocComment);
       $field->float_precision = self::parseFloatPrecisionTag($curDocComment);
@@ -116,7 +116,7 @@ class InstanceMetadata {
       $field->phpdoc_type = self::parsePHPDocType($field->type, $property);
 
       if ($field->raw_string && $field->type !== 'string') {
-        throw  new RuntimeException("@kphp-json raw-string tag are only allowed above string type, field name {$field->name}");
+        throw  new RuntimeException("@kphp-json raw_string tag are only allowed above string type, field name {$field->name}");
       }
 
       $fields_data[] = $field;
