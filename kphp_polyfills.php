@@ -152,6 +152,7 @@ function instance_cache_delete(string $key): bool {
  */
 function instance_cast($instance, string $class_name) {
   // it just returns the argument, but KPHP infers it as SomeClass
+  kphp_polyfill_checkInstance($instance, $class_name);
   return $instance;
 }
 
@@ -180,13 +181,22 @@ function to_array_debug($instance, $with_class_names = false, $public_members_on
 
   $toArray = function($v) use (&$toArray, &$demangleField, &$with_class_names, $public_members_only, $isPrivateField) {
     if (is_object($v)) {
+      if ($v instanceof \stdClass) {
+         throw new Exception("Invalid use stdclass");
+      }
       $result = [];
+      $errors = [];
+      $declaredProps = kphp_polyfill_getDeclaredProps($v, $errors);
       foreach ((array)$v as $field => $value) {
+         $propName = $demangleField($field);
         if ($public_members_only && $isPrivateField($field)) {
           continue;
         }
+         kphp_polyfill_checkPropExists($declaredProps, $propName, $value, $errors);
+
         $result[$demangleField($field)] = $toArray($value);
       }
+       kphp_polyfill_verifyProps($v, $errors);
       if ($with_class_names) {
         $result['__class_name'] = get_class($v);
       }
@@ -206,7 +216,7 @@ function to_array_debug($instance, $with_class_names = false, $public_members_on
  * @see to_array_debug function
  */
 function instance_to_array($instance, $with_class_names = false) {
-  return to_array_debug($instance, $with_class_names);
+  return to_array_debug($instance, $with_class_names, true);
 }
 
 #endregion
@@ -1124,3 +1134,5 @@ function ffi_array_get(\FFI\CData $arr, int $index) {
 
 
 #endif
+
+require_once __DIR__ .'/kphp_checks.php';
