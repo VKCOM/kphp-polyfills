@@ -216,6 +216,7 @@ class JsonEncoder {
   const float_precision = 0;
 
   public static function encode(?object $instance, bool $pretty_print = false, array $metadata = []) : string {
+    self::$lastError = '';
     return _php_serialize_helper_run_or_warning(static function() use ($instance, $pretty_print, $metadata) {
       if ($instance === null) {
         return "null";
@@ -231,15 +232,23 @@ class JsonEncoder {
   }
 
   public static function decode(string $json_string, string $class_name) : ?object {
-    return _php_serialize_helper_run_or_warning(static function() use ($json_string, $class_name) {
-      $map = json_decode($json_string, false);
+    self::$lastError = '';
+    try {
+      $map = json_decode($json_string, false, 512, JSON_THROW_ON_ERROR);
       if ($map === null) {
         return null;
       }
 
       $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
       return $deserializer->decode($map, true);
-    });
+    } catch (Throwable $e) {
+      self::$lastError = $e->getMessage();
+      return null;
+    }
+  }
+
+  public static function getLastError(): string {
+    return self::$lastError;
   }
 
   private static function mergeMetadata($map, array $metadata) {
@@ -250,6 +259,8 @@ class JsonEncoder {
     #empty stdClass allow to serialize empty php array as json object
     return $metadata;
   }
+
+  private static string $lastError = '';
 }
 
 #endregion
