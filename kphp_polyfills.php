@@ -219,7 +219,7 @@ class JsonEncoder {
     self::$lastError = '';
     return _php_serialize_helper_run_or_warning(static function() use ($instance, $pretty_print, $metadata) {
       if ($instance === null) {
-        return "null";
+        return '{}';
       }
 
       $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
@@ -235,7 +235,8 @@ class JsonEncoder {
     self::$lastError = '';
     try {
       $map = json_decode($json_string, false, 512, JSON_THROW_ON_ERROR);
-      if ($map === null) {
+      if (!($map instanceof stdClass)) {
+        self::$lastError = 'root element of json string must be an object type, got ' . gettype($map);
         return null;
       }
 
