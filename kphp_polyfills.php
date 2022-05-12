@@ -638,7 +638,7 @@ function _php_serialize_helper_run_or_warning(callable $fun) {
   }
 }
 
-function instance_serialize(object $instance): ?string {
+function instance_serialize(?object $instance): ?string {
   KPHP\InstanceSerialization\ClassTransformer::$depth = 0;
   return _php_serialize_helper_run_or_warning(static function() use ($instance) {
     $packer = (new MessagePack\Packer(MessagePack\PackOptions::FORCE_STR))->extendWith(new KPHP\InstanceSerialization\ClassTransformer());
