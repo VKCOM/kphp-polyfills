@@ -32,18 +32,17 @@ class InstanceDeserializer {
     $this->instance_metadata = InstanceMetadataCache::getInstanceMetadata($class_name, $encoder_name);
   }
 
-  public function decode($value, bool $root_call = false) : object {
+  public function decode($value) : object {
     $instance = $this->instance_metadata->reflection_of_instance->newInstanceWithoutConstructor();
     $reflection = new ReflectionClass($instance);
 
-    #don't deserialize flatten class as flatten when it is root json object
-    !$root_call && $this->isFlattenClass() ?
+    $this->isFlattenClass() ?
       $this->decodeFlattenClass($value, $reflection, $instance) :
       $this->decodeRegularClass($value, $reflection, $instance);
     return $instance;
   }
 
-  private function isFlattenClass(): bool {
+  public function isFlattenClass(): bool {
     return $this->instance_metadata->flatten_class;
   }
 

@@ -223,7 +223,7 @@ class JsonEncoder {
       }
 
       $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
-      $map = $serializer->encode(true);
+      $map = $serializer->encode();
       if ($metadata) {
         $map = self::mergemetadata($map, $metadata);
       }
@@ -234,14 +234,14 @@ class JsonEncoder {
   public static function decode(string $json_string, string $class_name) : ?object {
     self::$lastError = '';
     try {
+      $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
       $map = json_decode($json_string, false, 512, JSON_THROW_ON_ERROR);
-      if (!($map instanceof stdClass)) {
+      if (!$deserializer->isFlattenClass() && !($map instanceof stdClass)) {
         self::$lastError = 'root element of json string must be an object type, got ' . gettype($map);
         return null;
       }
 
-      $deserializer = new KPHP\JsonSerialization\InstanceDeserializer($class_name, static::class);
-      return $deserializer->decode($map, true);
+      return $deserializer->decode($map);
     } catch (Throwable $e) {
       self::$lastError = $e->getMessage();
       return null;

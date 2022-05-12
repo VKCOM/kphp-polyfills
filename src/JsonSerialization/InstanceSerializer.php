@@ -33,9 +33,8 @@ class InstanceSerializer {
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function encode(bool $root_call = false, int $float_precision = 0) {
-    #don't serialize flatten class as flatten when it is root json object
-    return !$root_call && $this->isFlattenClass() ?
+  public function encode(int $float_precision = 0) {
+    return $this->isFlattenClass() ?
       $this->encodeFlattenClass($float_precision) :
       $this->encodeRegularClass($float_precision);
   }
@@ -69,7 +68,8 @@ class InstanceSerializer {
       $class_name = $this->instance_metadata->reflection_of_instance->getName();
       throw new RuntimeException("flatten class should have only one field. Class name {$class_name}");
     }
-    [$_, $value] = $this->encodeImpl($this->instance_metadata->fields_data[0], $float_precision);
+    $field = $this->instance_metadata->fields_data[0];
+    [$_, $value] = $this->encodeImpl($field, $field->float_precision ?: $float_precision);
     return $value;
   }
 
