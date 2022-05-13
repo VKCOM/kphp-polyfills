@@ -73,10 +73,10 @@ class InstanceMetadata {
       $renamePolicy = self::parseFieldsRenameEncoder($encoder_name);
     }
 
-    $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || self::skipPrivateFieldsEncoder($encoder_name);
-    $class_skip_if_default = self::parseSkipIfDefaultTag($classPhpdoc) || self::parseSkipIfDefaultEncoder($encoder_name);
-    $class_float_precision = self::parseFloatPrecisionTag($classPhpdoc) ?: self::parseFloatPrecisionEncoder($encoder_name);
     $flatten_class = self::parseFlattenTag($reflection, $classPhpdoc);
+    $skip_private_fields = self::skipPrivateFieldsTag($classPhpdoc) || (!$flatten_class && self::skipPrivateFieldsEncoder($encoder_name));
+    $class_skip_if_default = self::parseSkipIfDefaultTag($classPhpdoc) || (!$flatten_class && self::parseSkipIfDefaultEncoder($encoder_name));
+    $class_float_precision = self::parseFloatPrecisionTag($classPhpdoc) ?: self::parseFloatPrecisionEncoder($encoder_name);
 
     $fields_data = [];
     $unique_names = [];
@@ -101,13 +101,19 @@ class InstanceMetadata {
       $field->float_precision = self::parseFloatPrecisionTag($curDocComment);
 
       if ($field->skip && ($field->rename || $field->skip_if_default ||
-          $field->float_precision || $field->array_as_hashmap || $field->required)) {
+          $field->float_precision || $field->array_as_hashmap || $field->required || $field->raw_string)) {
         throw new RuntimeException("'skip' can't be used together with other @kphp-json tags");
       }
 
       $field->rename = $field->rename ?: self::applyRenamePolicy($field->name, $renamePolicy);
       $field->skip_if_default = $field->skip_if_default || $class_skip_if_default;
       $field->float_precision = $field->float_precision ?: $class_float_precision;
+
+      if ($flatten_class && ($field->rename || $field->skip || $field->skip_if_default ||
+          $field->required || $field->raw_string || $skip_private_fields)) {
+        throw new RuntimeException("'rename|fields_rename|fields_visibility|skip|skip_if_default|required|raw_string' " .
+          "can't be used inside @kphp-json flatten class");
+      }
 
       $name = $field->rename ?: $field->name;
       self::checkFieldsDuplication($name, $unique_names);
