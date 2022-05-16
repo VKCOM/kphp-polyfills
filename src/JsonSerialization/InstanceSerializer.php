@@ -12,6 +12,9 @@ namespace KPHP\JsonSerialization;
 use ReflectionProperty;
 use ReflectionException;
 use RuntimeException;
+use Exception;
+
+class RecursionDepthException extends Exception {}
 
 class InstanceSerializer {
   /** @var string */
@@ -22,6 +25,11 @@ class InstanceSerializer {
 
   /** @var InstanceMetadata */
   public $instance_metadata;
+
+  /** @var int */
+  public static $depth = 0;
+  /** @var int */
+  public static $max_depth = 64;
 
   public function __construct(object $instance, string $encoder_name) {
     $this->encoder_name = $encoder_name;
@@ -48,6 +56,9 @@ class InstanceSerializer {
    * @throws RuntimeException
    */
   private function encodeRegularClass(int $float_precision) {
+    if (++self::$depth > self::$max_depth) {
+      throw new RecursionDepthException("allowed depth=" . self::$max_depth . " of json object exceeded");
+    }
     $map = [];
     foreach ($this->instance_metadata->fields_data as $field) {
       [$skip, $value] = $this->encodeImpl($field, $field->float_precision ?: $float_precision);
@@ -55,6 +66,7 @@ class InstanceSerializer {
         $map[$field->rename ?: $field->name] = $value;
       }
     }
+    --self::$depth;
     #serialize empty object as '{}', not as '[]'
     return $map ?: (object)[];
   }
@@ -99,6 +111,8 @@ class InstanceSerializer {
       }
 
       return [$skip, $value];
+    } catch (RecursionDepthException $e) {
+      throw $e;
     } catch (RuntimeException $e) {
       throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
     }

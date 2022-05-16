@@ -215,20 +215,23 @@ class JsonEncoder {
   const skip_if_default = false;
   const float_precision = 0;
 
-  public static function encode(?object $instance, bool $pretty_print = false, array $metadata = []) : string {
+  public static function encode(?object $instance, bool $pretty_print = false, array $metadata = []) : ?string {
     self::$lastError = '';
-    return _php_serialize_helper_run_or_warning(static function() use ($instance, $pretty_print, $metadata) {
-      if ($instance === null) {
-        return '{}';
-      }
-
+    if ($instance === null) {
+      return '{}';
+    }
+    try {
+      KPHP\JsonSerialization\InstanceSerializer::$depth = 0;
       $serializer = new KPHP\JsonSerialization\InstanceSerializer($instance, static::class);
       $map = $serializer->encode();
       if ($metadata) {
         $map = self::mergemetadata($map, $metadata);
       }
       return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
-    });
+    } catch (Throwable $e) {
+      self::$lastError = $e->getMessage();
+      return null;
+    }
   }
 
   public static function decode(string $json_string, string $class_name) : ?object {
