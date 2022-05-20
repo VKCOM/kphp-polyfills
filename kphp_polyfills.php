@@ -1101,6 +1101,13 @@ function estimate_memory_usage($value, int $depth = 0): int {
 
 
 /**
+ * ffi_memcpy_string implements FFI::memcpy for string-typed $src argument
+ */
+function ffi_memcpy_string(\FFI\CData $dst, string $src, int $size) {
+  \FFI::memcpy($dst, $src, $size);
+}
+
+/**
  * ffi_array_set implements array or pointer update operation: $arr[$index] = $value
  * For CData arrays, a bound check if performed: PHP throws and KPHP triggers
  * a critical error if $index is out of bounds
