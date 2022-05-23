@@ -48,7 +48,7 @@ abstract class PHPDocType {
 
   protected static function parseImpl(string &$str): ?PHPDocType {
     if (self::removeIfStartsWith($str, "?")) {
-      $str = "null|({$str})";
+      $str = "null|{$str}";
     }
 
     $res = InstanceType::parse($str) ?:
