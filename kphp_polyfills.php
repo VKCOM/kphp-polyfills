@@ -230,7 +230,7 @@ class JsonEncoder {
       return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
     } catch (Throwable $e) {
       self::$lastError = $e->getMessage();
-      return null;
+      return '';
     }
   }
 
