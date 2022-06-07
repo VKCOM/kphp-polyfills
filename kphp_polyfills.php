@@ -227,7 +227,7 @@ class JsonEncoder {
       if ($metadata) {
         $map = self::mergemetadata($map, $metadata);
       }
-      return json_encode($map, JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
+      return json_encode($map, JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION | ($pretty_print ? JSON_PRETTY_PRINT : 0));
     } catch (Throwable $e) {
       self::$lastError = $e->getMessage();
       return '';
