@@ -226,19 +226,8 @@ class InstanceMetadata {
     return $visibility === 'public';
   }
 
-  private static function validateSkipIfDefault(string $skip): void {
-    if (!in_array($skip, ["true", "false"])) {
-      throw new RuntimeException("allowed values for kphp-json skip_if_default=true|false, got: {$skip}");
-    }
-  }
-
   private static function parseSkipIfDefaultTag(string $phpdoc): bool {
-    if (preg_match("/@kphp-json skip_if_default=(\w+)/", $phpdoc, $matches)) {
-      $skip = $matches[1];
-      self::validateSkipIfDefault($skip);
-      return $skip === 'true';
-    }
-    return false;
+    return (bool)preg_match("/@kphp-json skip_if_default\s+/", $phpdoc);
   }
 
   private static function parseSkipIfDefaultEncoder(string $encoder_name): bool {
