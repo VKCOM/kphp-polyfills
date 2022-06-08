@@ -91,7 +91,7 @@ class InstanceMetadata {
 
       $field = new FieldMetadata;
       $field->name = $curName;
-      $field->rename = preg_match("/@kphp-json rename=(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
+      $field->rename = preg_match("/@kphp-json rename\s*=\s*(\w+)/", $curDocComment, $matches) ? $matches[1] : "";
       $field->skip = (bool)preg_match("/@kphp-json skip\s+/", $curDocComment);
       $field->array_as_hashmap = (bool)preg_match("/@kphp-json array_as_hashmap\s+/", $curDocComment);
       $field->required = (bool)preg_match("/@kphp-json required\s+/", $curDocComment);
@@ -191,7 +191,7 @@ class InstanceMetadata {
   }
 
   private static function parseFieldsRenameTag(string $phpdoc): string {
-    if (preg_match("/@kphp-json fields_rename=(\w+)/", $phpdoc, $matches)) {
+    if (preg_match("/@kphp-json fields_rename\s*=\s*(\w+)/", $phpdoc, $matches)) {
       $policy = $matches[1];
       self::validateFieldsRename($policy);
       return $policy;
@@ -212,7 +212,7 @@ class InstanceMetadata {
   }
 
   private static function skipPrivateFieldsTag(string $phpdoc): bool {
-    if (preg_match("/@kphp-json fields_visibility=(\w+)/", $phpdoc, $matches)) {
+    if (preg_match("/@kphp-json fields_visibility\s*=\s*(\w+)/", $phpdoc, $matches)) {
       $visibility = $matches[1];
       self::validateFieldsVisibility($visibility);
       return $visibility === 'public';
@@ -241,7 +241,7 @@ class InstanceMetadata {
   }
 
   private static function parseFloatPrecisionTag(string $phpdoc): int {
-    if (preg_match("/@kphp-json float_precision=(-?\d+)/", $phpdoc, $matches)) {
+    if (preg_match("/@kphp-json float_precision\s*=\s*(-?\d+)/", $phpdoc, $matches)) {
       $precision = (int)$matches[1];
       self::validateFloatPrecision($precision);
       return $precision;
