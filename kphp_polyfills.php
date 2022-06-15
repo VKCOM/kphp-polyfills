@@ -650,7 +650,7 @@ function instance_deserialize(string $packed_str, string $type_of_instance): ?ob
   return _php_serialize_helper_run_or_warning(static function() use ($packed_str, $type_of_instance) {
     $unpacked_array = msgpack_deserialize_safe($packed_str);
 
-    $instance_parser = new KPHP\MsgPackSerialization\InstanceDeserializer($type_of_instance);
+    $instance_parser = new KPHP\MsgPackSerialization\MsgPackDeserializer($type_of_instance);
     return $instance_parser->fromUnpackedArray($unpacked_array);
   });
 }

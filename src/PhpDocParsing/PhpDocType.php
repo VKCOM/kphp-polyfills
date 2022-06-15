@@ -46,10 +46,8 @@ abstract class PhpDocType {
     return false;
   }
 
-  protected static function parseImpl(string &$str): ?PhpDocType {
-    if (self::removeIfStartsWith($str, "?")) {
-      $str = "null|({$str})";
-    }
+  protected static function parseImpl(string &$str): ?PHPDocType {
+    $nullable = self::removeIfStartsWith($str, "?");
 
     $res = InstanceType::parse($str) ?:
            PrimitiveType::parse($str) ?:
@@ -70,6 +68,15 @@ abstract class PhpDocType {
     if ($or_type) {
       $or_type->type1 = $res;
       $res            = $or_type;
+    }
+
+    if ($nullable) {
+      $null = new PrimitiveType();
+      $null->type = 'null';
+      $or_type = new OrType();
+      $or_type->type1 = $null;
+      $or_type->type2 = $res;
+      $res = $or_type;
     }
 
     return $res;

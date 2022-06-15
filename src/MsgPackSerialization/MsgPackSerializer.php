@@ -12,7 +12,7 @@ namespace KPHP\MsgPackSerialization;
 use ReflectionException;
 use RuntimeException;
 
-class InstanceSerializer {
+class MsgPackSerializer {
   /**@var (mixed|DeepForceFloat32)[] */
   public $tags_values = [];
 
@@ -59,7 +59,7 @@ class InstanceSerializer {
    * @throws ReflectionException
    */
   private function getValue(FieldMetadata $field, object $instance) {
-    $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
+    $property = $this->instance_metadata->klass->getProperty($field->name);
     $property->setAccessible(true);
     return $property->getValue($instance);
   }

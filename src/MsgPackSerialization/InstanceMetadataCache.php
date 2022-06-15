@@ -14,13 +14,10 @@ use ReflectionException;
 class InstanceMetadataCache {
 
   /** @var InstanceMetadata[] */
-  private static $instance_parsers = [];
+  private static array $cached_classes = [];
 
   /** @throws ReflectionException */
   public static function getInstanceMetadata(string $class_name): InstanceMetadata {
-    if (!array_key_exists($class_name, self::$instance_parsers)) {
-      self::$instance_parsers[$class_name] = new InstanceMetadata($class_name);
-    }
-    return self::$instance_parsers[$class_name];
+    return self::$cached_classes[$class_name] ??= new InstanceMetadata($class_name);
   }
 }

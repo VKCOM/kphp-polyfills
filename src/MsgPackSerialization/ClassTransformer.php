@@ -32,7 +32,7 @@ class ClassTransformer implements CanPack {
       $packer = (new Packer(PackOptions::FORCE_STR | PackOptions::FORCE_FLOAT32))->extendWith(new ClassTransformer());
       return $packer->pack($instance->value);
     }
-    $instance_parser = new InstanceSerializer($instance);
+    $instance_parser = new MsgPackSerializer($instance);
     return $packer->pack($instance_parser->tags_values);
   }
 }

@@ -1,6 +1,6 @@
 <?php
 // Compiler for PHP (aka KPHP) polyfills
-// Copyright (c) 2020 LLC �V Kontakte�
+// Copyright (c) 2020 LLC «V Kontakte»
 // Distributed under the GPL v3 License, see LICENSE.notice.txt
 
 /** @noinspection NoTypeDeclarationInspection */
@@ -14,7 +14,7 @@ use ReflectionException;
 use ReflectionProperty;
 use RuntimeException;
 
-class InstanceDeserializer {
+class MsgPackDeserializer {
   /** @var InstanceMetadata */
   public $instance_metadata;
 
@@ -41,7 +41,7 @@ class InstanceDeserializer {
       throw new RuntimeException('Expected NIL or ARRAY type for unpacking class_instance');
     }
 
-    $instance        = $this->instance_metadata->reflection_of_instance->newInstanceWithoutConstructor();
+    $instance        = $this->instance_metadata->klass->newInstanceWithoutConstructor();
     $rc_for_instance = new ReflectionClass($instance);
 
     for ($i = 0, $i_max = count($unpacked_arr); $i < $i_max; $i += 2) {

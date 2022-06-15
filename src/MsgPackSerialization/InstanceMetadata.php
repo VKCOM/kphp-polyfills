@@ -20,7 +20,7 @@ class InstanceMetadata {
   public $fields_data = [];
 
   /**@var ?ReflectionClass */
-  public $reflection_of_instance = null;
+  public $klass = null;
 
   /**@var ?UseResolver */
   public $use_resolver = null;
@@ -31,23 +31,23 @@ class InstanceMetadata {
    */
   public function __construct(string $instance) {
     assert($instance !== '' && $instance !== 'self');
-    $this->reflection_of_instance = new ReflectionClass($instance);
-    $this->use_resolver           = new UseResolver($this->reflection_of_instance);
+    $this->klass        = new ReflectionClass($instance);
+    $this->use_resolver = new UseResolver($this->klass);
 
-    if (strpos($this->reflection_of_instance->getDocComment(), '@kphp-serializable') === false) {
-      throw new RuntimeException('add @kphp-serializable phpdoc to class: ' . $this->reflection_of_instance->getName());
+    if (strpos($this->klass->getDocComment(), '@kphp-serializable') === false) {
+      throw new RuntimeException('add @kphp-serializable phpdoc to class: ' . $this->klass->getName());
     }
 
-    if ($this->reflection_of_instance->isAbstract() || $this->reflection_of_instance->isInterface() ||
-      ($this->reflection_of_instance->getParentClass() && $this->reflection_of_instance->getParentClass()->getProperties())) {
-      throw new RuntimeException('You may not serialize interfaces/abstract classes/polymorphic classes: ' . $this->reflection_of_instance->getName());
+    if ($this->klass->isAbstract() || $this->klass->isInterface() ||
+      ($this->klass->getParentClass() && $this->klass->getParentClass()->getProperties())) {
+      throw new RuntimeException('You may not serialize interfaces/abstract classes/polymorphic classes: ' . $this->klass->getName());
     }
 
-    preg_match('/@kphp-reserved-fields\s+\[(\d+)\s*(?:,\s*(\d+))*]/', $this->reflection_of_instance->getDocComment(), $reserved_field_ids);
+    preg_match('/@kphp-reserved-fields\s+\[(\d+)\s*(?:,\s*(\d+))*]/', $this->klass->getDocComment(), $reserved_field_ids);
     array_shift($reserved_field_ids);
     $reserved_field_ids = array_map('intval', $reserved_field_ids);
 
-    foreach ($this->reflection_of_instance->getProperties() as $property) {
+    foreach ($this->klass->getProperties() as $property) {
       $curDocComment = $property->getDocComment();
       $curName = $property->getName();
       preg_match('/@kphp-serialized-field\s+(\d+|none)[\s*]/', $curDocComment, $matches);
