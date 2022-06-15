@@ -7,28 +7,28 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-class TupleType extends PHPDocType {
-  /**@var PHPDocType[] */
+class TupleType extends PhpDocType {
+  /**@var PhpDocType[] */
   public $types = [];
 
-  /** @param PHPDocType[] $types */
+  /** @param PhpDocType[] $types */
   public function __construct(array $types) {
     $this->types = $types;
   }
 
   /** @throws RuntimeException */
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     if (!parent::removeIfStartsWith($str, '\\tuple(') && !parent::removeIfStartsWith($str, 'tuple(')) {
       return null;
     }
 
     $types = [];
     while (true) {
-      $cur_type = PHPDocType::parse($str);
+      $cur_type = PhpDocType::parse($str);
       if (!$cur_type) {
         throw new RuntimeException('something went wrong in parsing tuple phpdoc');
       }
@@ -71,7 +71,7 @@ class TupleType extends PHPDocType {
   }
 
   protected function hasInstanceInside(): bool {
-    return in_array(true, array_map(fn(PHPDocType $type) => $type->hasInstanceInside(), $this->types), true);
+    return in_array(true, array_map(fn(PhpDocType $type) => $type->hasInstanceInside(), $this->types), true);
   }
 
   /** @param mixed $value */

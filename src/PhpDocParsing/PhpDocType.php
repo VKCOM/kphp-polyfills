@@ -7,11 +7,11 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-abstract class PHPDocType {
+abstract class PhpDocType {
   /*
     PHPDoc grammar
 
@@ -46,7 +46,7 @@ abstract class PHPDocType {
     return false;
   }
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     if (self::removeIfStartsWith($str, "?")) {
       $str = "null|({$str})";
     }
@@ -75,7 +75,7 @@ abstract class PHPDocType {
     return $res;
   }
 
-  public static function parse(string &$str): ?PHPDocType {
+  public static function parse(string &$str): ?PhpDocType {
     $str = ltrim($str);
     $res = static::parseImpl($str);
     $str = ltrim($str);

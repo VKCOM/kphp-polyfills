@@ -7,25 +7,25 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-class ArrayType extends PHPDocType {
-  /**@var ?PHPDocType */
+class ArrayType extends PhpDocType {
+  /**@var ?PhpDocType */
   public $inner_type = null;
 
   /**@var int */
   public $cnt_arrays = 0;
 
-  public function __construct(PHPDocType $inner_type, int $cnt_arrays) {
+  public function __construct(PhpDocType $inner_type, int $cnt_arrays) {
     $this->inner_type = $inner_type;
     $this->cnt_arrays = $cnt_arrays;
   }
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     if (parent::removeIfStartsWith($str, '(')) {
-      $inner_type = PHPDocType::parse($str);
+      $inner_type = PhpDocType::parse($str);
       assert($inner_type && $str[0] === ')');
       $str = ltrim(substr($str, 1));
     } else {

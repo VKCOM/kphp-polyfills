@@ -7,17 +7,17 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 
-class InstanceType extends PHPDocType {
+class InstanceType extends PhpDocType {
   /**@var string */
   public $type = '';
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     if (preg_match('/^(\\\\?[A-Z][a-zA-Z0-9_\x80-\xff\\\\]*|self|static|object)/', $str, $matches)) {
       $res       = new self();
       $res->type = $matches[1];

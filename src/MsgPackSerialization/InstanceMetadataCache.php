@@ -7,7 +7,7 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
 use ReflectionException;
 

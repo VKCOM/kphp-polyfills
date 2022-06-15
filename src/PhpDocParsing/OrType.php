@@ -7,21 +7,21 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use Throwable;
 
-class OrType extends PHPDocType {
-  /**@var PHPDocType */
+class OrType extends PhpDocType {
+  /**@var PhpDocType */
   public $type1;
 
-  /**@var PHPDocType */
+  /**@var PhpDocType */
   public $type2;
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     if (parent::removeIfStartsWith($str, '|')) {
       $res        = new self();
-      $res->type2 = PHPDocType::parse($str);
+      $res->type2 = PhpDocType::parse($str);
       return $res;
     }
 

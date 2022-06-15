@@ -7,11 +7,11 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-class PrimitiveType extends PHPDocType {
+class PrimitiveType extends PhpDocType {
   /**@var string[] */
   public static $primitive_types = [
     'int', 'integer', 'float',
@@ -23,7 +23,7 @@ class PrimitiveType extends PHPDocType {
   /**@var string */
   public $type = '';
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str): ?PhpDocType {
     foreach (self::$primitive_types as $primitive_type) {
       if (self::removeIfStartsWith($str, $primitive_type)) {
         $res       = new self();

@@ -7,8 +7,10 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
+use KPHP\PhpDocParsing\PhpDocType;
+use KPHP\PhpDocParsing\UseResolver;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -28,7 +30,7 @@ class InstanceMetadata {
    * @throws RuntimeException
    */
   public function __construct(string $instance) {
-    assert(is_string($instance) && $instance !== '' && $instance !== 'self');
+    assert($instance !== '' && $instance !== 'self');
     $this->reflection_of_instance = new ReflectionClass($instance);
     $this->use_resolver           = new UseResolver($this->reflection_of_instance);
 

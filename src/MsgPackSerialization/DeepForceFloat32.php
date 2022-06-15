@@ -1,6 +1,6 @@
 <?php
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
 class DeepForceFloat32 {
   /**@var any*/
