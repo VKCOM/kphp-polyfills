@@ -37,10 +37,6 @@ class MsgPackDeserializer {
       return null;
     }
 
-    if (!is_array($unpacked_arr)) {
-      throw new RuntimeException('Expected NIL or ARRAY type for unpacking class_instance');
-    }
-
     $instance        = $this->instance_metadata->klass->newInstanceWithoutConstructor();
     $rc_for_instance = new ReflectionClass($instance);
 
@@ -50,7 +46,7 @@ class MsgPackDeserializer {
 
       foreach ($this->instance_metadata->fields_data as $field) {
         if ($field->id == $cur_tag) {
-          $value = $field->phpdoc_type->fromUnpackedValue($value, $this->instance_metadata->use_resolver);
+          $value = $field->phpdoc_type->fromUnpackedValue($value);
 
           $property = $rc_for_instance->getProperty($field->name);
           $property->setAccessible(true);

@@ -16,62 +16,50 @@ use ReflectionException;
 use RuntimeException;
 
 class InstanceType extends PhpDocType {
-  /**@var string */
-  public $type = '';
+  public string $class_name;
 
-  protected static function parseImpl(string &$str): ?PhpDocType {
-    if (preg_match('/^(\\\\?[A-Z][a-zA-Z0-9_\x80-\xff\\\\]*|self|static|object)/', $str, $matches)) {
-      $res       = new self();
-      $res->type = $matches[1];
-      $str       = substr($str, strlen($res->type));
-
-      if (in_array($res->type, ['static', 'object'], true)) {
-        throw new RuntimeException('static|object are forbidden in phpdoc');
-      }
-      return $res;
-    }
-
-    return null;
+  function __construct(string $class_name) {
+    $this->class_name = $class_name;
   }
 
-  /**
-   * @param ?array $value
-   * @return ?object
-   * @throws ReflectionException
-   * @throws RuntimeException
-   */
-  public function fromUnpackedValue($value, UseResolver $use_resolver) {
-    $resolved_class_name = $this->getResolvedClassName($use_resolver);
-    $parser              = new MsgPackDeserializer($resolved_class_name);
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
+    if (!preg_match('/^(\\\\?[A-Z][a-zA-Z0-9_\x80-\xff\\\\]*|self|static|object)/', $str, $matches)) {
+      return null;
+    }
+
+    $relative = $matches[1];
+    $str = substr($str, strlen($relative));
+
+    if ($relative === 'static' || $relative === 'object') {
+      throw new RuntimeException('static|object are forbidden in phpdoc');
+    }
+
+    $class_name = $use_resolver->resolveName($relative);
+    if (!class_exists($class_name) && !interface_exists($class_name)) {
+      throw new RuntimeException("Can't find class: $class_name");
+    }
+
+    return new self($class_name);
+  }
+
+  public function fromUnpackedValue($value) {
+    $parser = new MsgPackDeserializer($this->class_name);
     return $parser->fromUnpackedArray($value);
   }
 
-  private function getResolvedClassName(UseResolver $use_resolver): string {
-    $resolved_class_name = $use_resolver->resolveName($this->type);
-    if (!class_exists($resolved_class_name)) {
-      throw new RuntimeException("Can't find class: {$resolved_class_name}");
-    }
-    return $resolved_class_name;
-  }
-
-  /**
-   * @param mixed       $value
-   * @throws ReflectionException
-   */
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValue($value): void {
     if ($value === null) {
       return;
     }
 
     if (!is_object($value)) {
-      self::throwRuntimeException($value, $this->type);
+      self::throwRuntimeException($value, $this->class_name);
     }
 
-    $resolved_name = $this->getResolvedClassName($use_resolver);
-    $rc            = new ReflectionClass($resolved_name);
-    $parser        = new MsgPackSerializer($value); // will verify values inside $value
+    $rc = new ReflectionClass($this->class_name);
+    $parser = new MsgPackSerializer($value); // will verify values inside $value
     if ($parser->instance_metadata->klass->getName() !== $rc->getName()) {
-      self::throwRuntimeException($rc->getName(), $this->type);
+      self::throwRuntimeException($rc->getName(), $this->class_name);
     }
   }
 

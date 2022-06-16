@@ -12,87 +12,53 @@ namespace KPHP\PhpDocParsing;
 use RuntimeException;
 
 class ArrayType extends PhpDocType {
-  /**@var ?PhpDocType */
-  public $inner_type = null;
+  public PhpDocType $inner;
 
-  /**@var int */
-  public $cnt_arrays = 0;
-
-  public function __construct(PhpDocType $inner_type, int $cnt_arrays) {
-    $this->inner_type = $inner_type;
-    $this->cnt_arrays = $cnt_arrays;
+  public function __construct(PhpDocType $inner) {
+    $this->inner = $inner;
   }
 
-  protected static function parseImpl(string &$str): ?PhpDocType {
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
     if (parent::removeIfStartsWith($str, '(')) {
-      $inner_type = PhpDocType::parse($str);
-      assert($inner_type && $str[0] === ')');
+      $inside_par = PhpDocType::parse($str, $use_resolver);
+      assert($inside_par && $str[0] === ')');
       $str = ltrim(substr($str, 1));
+      return $inside_par;
+    } else if (parent::removeIfStartsWith($str, 'array')) {
+      return new ArrayType(new PrimitiveType('any'));
     } else {
       return null;
     }
-
-    $cnt_arrays = self::parseArrays($str);
-    if ($cnt_arrays) {
-      return new ArrayType($inner_type, $cnt_arrays);
-    }
-
-    return $inner_type;
   }
 
-  public static function parseArrays(string &$str): int {
-    $cnt_arrays = 0;
-    while (parent::removeIfStartsWith($str, '[]')) {
-      ++$cnt_arrays;
-    }
-
-    return $cnt_arrays;
-  }
-
-  /**
-   * @param mixed[] $arr
-   * @throws RuntimeException
-   */
-  public function fromUnpackedValue($arr, UseResolver $use_resolver): array {
-    if (!is_array($arr)) {
-      throw new RuntimeException('not instance: ' . $arr);
+  public function fromUnpackedValue($value): array {
+    if (!is_array($value)) {
+      throw new RuntimeException('not instance: ' . $value);
     }
 
     if (!$this->hasInstanceInside()) {
-      return $arr;
+      return $value;
     }
 
     $res = [];
-    foreach ($arr as $key => $value) {
-      if ($this->cnt_arrays === 1) {
-        $res[$key] = $this->inner_type->fromUnpackedValue($value, $use_resolver);
-      } else {
-        $this->cnt_arrays -= 1;
-        $res[$key] = $this->fromUnpackedValue($value, $use_resolver);
-        $this->cnt_arrays += 1;
-      }
+    foreach ($value as $key => $item) {
+      $res[$key] = $this->inner->fromUnpackedValue($item);
     }
 
     return $res;
   }
 
   protected function hasInstanceInside(): bool {
-    return $this->inner_type->hasInstanceInside();
+    return $this->inner->hasInstanceInside();
   }
 
-  public function verifyValue($array, UseResolver $use_resolver): void {
-    if (!is_array($array)) {
-      throw new RuntimeException('not instance: ' . $array);
+  public function verifyValue($value): void {
+    if (!is_array($value)) {
+      throw new RuntimeException('not array: ' . $value);
     }
 
-    foreach ($array as $value) {
-      if ($this->cnt_arrays === 1) {
-        $this->inner_type->verifyValue($value, $use_resolver);
-      } else {
-        $this->cnt_arrays -= 1;
-        $this->verifyValue($value, $use_resolver);
-        $this->cnt_arrays += 1;
-      }
+    foreach ($value as $item) {
+      $this->inner->verifyValue($item);
     }
   }
 }

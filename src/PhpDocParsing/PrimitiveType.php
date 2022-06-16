@@ -12,84 +12,76 @@ namespace KPHP\PhpDocParsing;
 use RuntimeException;
 
 class PrimitiveType extends PhpDocType {
-  /**@var string[] */
-  public static $primitive_types = [
-    'int', 'integer', 'float',
-    'string', 'array',
+  private const PRIMITIVE_TYPES = [
+    'int', 'integer', 'float', 'string',
     'boolean', 'bool', 'false', 'true',
     'null', 'NULL',
-    'mixed',
+    'mixed', 'any',
   ];
-  /**@var string */
-  public $type = '';
 
-  protected static function parseImpl(string &$str): ?PhpDocType {
-    foreach (self::$primitive_types as $primitive_type) {
+  public string $ptype;
+
+  function __construct(string $ptype) {
+    $this->ptype = $ptype;
+  }
+
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
+    foreach (self::PRIMITIVE_TYPES as $primitive_type) {
       if (self::removeIfStartsWith($str, $primitive_type)) {
-        $res       = new self();
-        $res->type = $primitive_type;
-        return $res;
+        return new self($primitive_type);
       }
     }
 
     return null;
   }
 
-  /**
-   * @param mixed       $value
-   * @return mixed
-   * @throws RuntimeException
-   */
-  public function fromUnpackedValue($value, UseResolver $use_resolver) {
-    $true_type = $this->getPHPCompliantType();
-    if ($true_type === 'mixed' || gettype($value) === $true_type) {
+  public function fromUnpackedValue($value) {
+    if ($this->doesValueFitThisType($value)) {
       return $value;
     }
 
-    throw new RuntimeException('not primitive: ' . $this->type);
+    throw new RuntimeException('not primitive: ' . $this->ptype);
   }
 
-  private function getPHPCompliantType(): string {
-    switch ($this->type) {
+  private function doesValueFitThisType($v): bool {
+    switch ($this->ptype) {
       case 'int':
-        return 'integer';
+      case 'integer':
+        return is_int($v);
       case 'float':
-        return 'double';
-      case 'boolean':
+        return is_int($v) || is_double($v);
+      case 'string':
+        return is_string($v);
       case 'bool':
+      case 'boolean':
+        return $v === true || $v === false;
       case 'false':
+        return $v === false;
       case 'true':
-        return 'boolean';
+        return $v === true;
       case 'null':
-        return 'NULL';
+      case 'NULL':
+        return $v === null;
+      case 'mixed':
+        // for an array, do a very primitive check that it's an array of mixed-compatible values
+        if (is_array($v) && count($v) > 0) {
+          return $this->doesValueFitThisType(array_first_value($v)) && $this->doesValueFitThisType(array_last_value($v));
+        }
+        if ($v instanceof \stdClass) {
+          return true;
+        }
+        return !is_object($v);
+      case 'any':
+        return true;
+      default:
+        return false;
     }
-    return $this->type;
   }
 
-  public function verifyValue($value, UseResolver $_): void {
-    $true_type = $this->getPHPCompliantType();
-    if (gettype($value) === $true_type) {
-      if (($this->type === 'true' && $value !== true) ||
-          ($this->type === 'false' && $value !== false)) {
-        self::throwRuntimeException($value, $this->type);
-      }
-      return;
+  public function verifyValue($value): void {
+    if (!$this->doesValueFitThisType($value)) {
+      self::throwRuntimeException($value, $this->ptype);
     }
-
-    if (is_object($value) || $true_type !== 'mixed') {
-      self::throwRuntimeException($value, $this->type);
-    }
-
-    if (!is_array($value)) {
-      return;
-    }
-
-    $check_objects_inside = function($item, $_) {
-      if (is_object($item)) {
-        self::throwRuntimeException($item, $this->type);
-      }
-    };
-    array_walk_recursive($value, $check_objects_inside);
   }
 
   protected function hasInstanceInside(): bool {

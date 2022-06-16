@@ -17,21 +17,18 @@ use RuntimeException;
 
 class InstanceMetadata {
   /**@var FieldMetadata[] */
-  public $fields_data = [];
+  public array $fields_data = [];
 
-  /**@var ?ReflectionClass */
-  public $klass = null;
-
-  /**@var ?UseResolver */
-  public $use_resolver = null;
+  public ReflectionClass $klass;
+  public UseResolver $use_resolver;
 
   /**
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function __construct(string $instance) {
-    assert($instance !== '' && $instance !== 'self');
-    $this->klass        = new ReflectionClass($instance);
+  public function __construct(string $class_name) {
+    assert($class_name !== '' && $class_name !== 'self');
+    $this->klass = new ReflectionClass($class_name);
     $this->use_resolver = new UseResolver($this->klass);
 
     if (strpos($this->klass->getDocComment(), '@kphp-serializable') === false) {
@@ -102,14 +99,19 @@ class InstanceMetadata {
 
         $field->type = $type_name;
       }
-      if ($field->type === '') {
-        throw new RuntimeException("Can't detect type of field {$curName}");
-      }
 
-      $type_copy = $field->type;
-      $field->phpdoc_type = PHPDocType::parse($type_copy);
-      if ($field->phpdoc_type === null) {
-        throw new RuntimeException("Can't parse phpdoc of field {$curName}: {$field->type}");
+      try {
+        if ($field->type === '') {
+          throw new RuntimeException("no @var above");
+        }
+        $type_copy = $field->type;
+
+        $field->phpdoc_type = PHPDocType::parse($type_copy, $this->use_resolver);
+        if ($field->phpdoc_type === null) {
+          throw new RuntimeException("@var has invalid or unsupported format");
+        }
+      } catch (\Exception $ex) {
+        throw new RuntimeException("Error parsing phpdoc of field $class_name::\$$curName: {$ex->getMessage()}");
       }
       $this->fields_data[] = $field;
     }

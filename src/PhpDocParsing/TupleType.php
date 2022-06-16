@@ -12,32 +12,31 @@ namespace KPHP\PhpDocParsing;
 use RuntimeException;
 
 class TupleType extends PhpDocType {
-  /**@var PhpDocType[] */
-  public $types = [];
+  /** @var PhpDocType[] */
+  public array $types = [];
 
-  /** @param PhpDocType[] $types */
   public function __construct(array $types) {
     $this->types = $types;
   }
 
-  /** @throws RuntimeException */
-  protected static function parseImpl(string &$str): ?PhpDocType {
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
     if (!parent::removeIfStartsWith($str, '\\tuple(') && !parent::removeIfStartsWith($str, 'tuple(')) {
       return null;
     }
 
     $types = [];
     while (true) {
-      $cur_type = PhpDocType::parse($str);
+      $cur_type = PhpDocType::parse($str, $use_resolver);
       if (!$cur_type) {
         throw new RuntimeException('something went wrong in parsing tuple phpdoc');
       }
 
       $types[] = $cur_type;
       $str     = ltrim($str);
-      if ($str[0] === ',') {
+      $chr     = $str === '' ? '' : $str[0];
+      if ($chr === ',') {
         $str = substr($str, 1);
-      } elseif ($str[0] === ')') {
+      } elseif ($chr === ')') {
         $str = substr($str, 1);
         break;
       } else {
@@ -48,25 +47,20 @@ class TupleType extends PhpDocType {
     return new TupleType($types);
   }
 
-  /**
-   * @param mixed $value
-   * @throws RuntimeException
-   */
-  public function fromUnpackedValue($value, UseResolver $use_resolver): array {
+  public function fromUnpackedValue($value): array {
     $this->checkValue($value);
     $res = [];
     for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
-      $res[] = $this->types[$i]->fromUnpackedValue($value[$i], $use_resolver);
+      $res[] = $this->types[$i]->fromUnpackedValue($value[$i]);
     }
 
     return $res;
   }
 
-  /** @param mixed $value */
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValue($value): void {
     $this->checkValue($value);
     for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
-      $this->types[$i]->verifyValue($value[$i], $use_resolver);
+      $this->types[$i]->verifyValue($value[$i]);
     }
   }
 
