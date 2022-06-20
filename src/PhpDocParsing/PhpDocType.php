@@ -7,11 +7,11 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-abstract class PHPDocType {
+abstract class PhpDocType {
   /*
     PHPDoc grammar
 
@@ -33,9 +33,9 @@ abstract class PHPDocType {
                       "?" PHPDocType |
   */
   public static function throwRuntimeException($value, $type): void {
-    $value = vk_json_encode($value);
-    $type  = vk_json_encode($type);
-    throw new RuntimeException("value: `${value}` doesn't correspond to type: `${type}`");
+    $value_str = str_replace("\n", " ", substr(var_export($value, true), 0, 100));
+    $type_str  = var_export($type, true);
+    throw new RuntimeException("can't assign to type $type_str from $value_str");
   }
 
   protected static function removeIfStartsWith(string &$haystack, $needle): bool {
@@ -46,38 +46,42 @@ abstract class PHPDocType {
     return false;
   }
 
-  protected static function parseImpl(string &$str): ?PHPDocType {
-    if (self::removeIfStartsWith($str, "?")) {
-      $str = "null|({$str})";
-    }
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PHPDocType {
+    $nullable = self::removeIfStartsWith($str, "?");
 
-    $res = InstanceType::parse($str) ?:
-           PrimitiveType::parse($str) ?:
-           TupleType::parse($str) ?:
-           ArrayType::parse($str);
+    $res = InstanceType::parse($str, $use_resolver) ?:
+           PrimitiveType::parse($str, $use_resolver) ?:
+           TupleType::parse($str, $use_resolver) ?:
+           ArrayType::parse($str, $use_resolver);
 
     if (!$res) {
       return null;
     }
 
-    $cnt_arrays = ArrayType::parseArrays($str);
-    if ($cnt_arrays) {
-      $res = new ArrayType($res, $cnt_arrays);
+    while (self::removeIfStartsWith($str, '[]')) {
+      $res = new ArrayType($res);
     }
 
     /**@var OrType */
-    $or_type = OrType::parse($str);
+    $or_type = OrType::parse($str, $use_resolver);
     if ($or_type) {
       $or_type->type1 = $res;
       $res            = $or_type;
     }
 
+    if ($nullable) {
+      $or_type = new OrType();
+      $or_type->type1 = new PrimitiveType('null');
+      $or_type->type2 = $res;
+      $res = $or_type;
+    }
+
     return $res;
   }
 
-  public static function parse(string &$str): ?PHPDocType {
+  public static function parse(string &$str, UseResolver $use_resolver): ?PhpDocType {
     $str = ltrim($str);
-    $res = static::parseImpl($str);
+    $res = static::parseImpl($str, $use_resolver);
     $str = ltrim($str);
     return $res;
   }
@@ -87,13 +91,13 @@ abstract class PHPDocType {
    * @return mixed
    * @throws RuntimeException
    */
-  abstract public function fromUnpackedValue($value, UseResolver $use_resolver);
+  abstract public function fromUnpackedValue($value);
 
   /**
    * @param mixed $value
    * @throws RuntimeException
    */
-  abstract public function verifyValue($value, UseResolver $use_resolver): void;
+  abstract public function verifyValue($value): void;
 
   abstract protected function hasInstanceInside(): bool;
 }

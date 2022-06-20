@@ -7,7 +7,7 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use ReflectionClass;
 use SplFileObject;
@@ -109,21 +109,21 @@ class UseResolver {
     return [$alias, $class_name];
   }
 
-  public function resolveName(string $instance_name): string {
-    if ($instance_name[0] === '\\') {
-      return $instance_name;
+  public function resolveName(string $relative): string {
+    if ($relative[0] === '\\') {
+      return $relative;
     }
 
-    if ($instance_name === 'self') {
+    if ($relative === 'self') {
       return $this->instance_reflection->getName();
     }
 
-    $backslash_position = strpos($instance_name, '\\') ?: strlen($instance_name);
-    $first_part_of_name = substr($instance_name, 0, $backslash_position);
+    $backslash_position = strpos($relative, '\\') ?: strlen($relative);
+    $first_part_of_name = substr($relative, 0, $backslash_position);
     if (isset($this->alias_to_name[$first_part_of_name])) {
-      return $this->alias_to_name[$first_part_of_name] . substr($instance_name, strlen($first_part_of_name));
+      return $this->alias_to_name[$first_part_of_name] . substr($relative, strlen($first_part_of_name));
     }
 
-    return $this->instance_reflection->getNamespaceName() . '\\' . $instance_name;
+    return $this->instance_reflection->getNamespaceName() . '\\' . $relative;
   }
 }

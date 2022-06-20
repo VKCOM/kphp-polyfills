@@ -7,37 +7,36 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\PhpDocParsing;
 
 use RuntimeException;
 
-class TupleType extends PHPDocType {
-  /**@var PHPDocType[] */
-  public $types = [];
+class TupleType extends PhpDocType {
+  /** @var PhpDocType[] */
+  public array $types = [];
 
-  /** @param PHPDocType[] $types */
   public function __construct(array $types) {
     $this->types = $types;
   }
 
-  /** @throws RuntimeException */
-  protected static function parseImpl(string &$str): ?PHPDocType {
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
     if (!parent::removeIfStartsWith($str, '\\tuple(') && !parent::removeIfStartsWith($str, 'tuple(')) {
       return null;
     }
 
     $types = [];
     while (true) {
-      $cur_type = PHPDocType::parse($str);
+      $cur_type = PhpDocType::parse($str, $use_resolver);
       if (!$cur_type) {
         throw new RuntimeException('something went wrong in parsing tuple phpdoc');
       }
 
       $types[] = $cur_type;
       $str     = ltrim($str);
-      if ($str[0] === ',') {
+      $chr     = $str === '' ? '' : $str[0];
+      if ($chr === ',') {
         $str = substr($str, 1);
-      } elseif ($str[0] === ')') {
+      } elseif ($chr === ')') {
         $str = substr($str, 1);
         break;
       } else {
@@ -48,30 +47,25 @@ class TupleType extends PHPDocType {
     return new TupleType($types);
   }
 
-  /**
-   * @param mixed $value
-   * @throws RuntimeException
-   */
-  public function fromUnpackedValue($value, UseResolver $use_resolver): array {
+  public function fromUnpackedValue($value): array {
     $this->checkValue($value);
     $res = [];
     for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
-      $res[] = $this->types[$i]->fromUnpackedValue($value[$i], $use_resolver);
+      $res[] = $this->types[$i]->fromUnpackedValue($value[$i]);
     }
 
     return $res;
   }
 
-  /** @param mixed $value */
-  public function verifyValue($value, UseResolver $use_resolver): void {
+  public function verifyValue($value): void {
     $this->checkValue($value);
     for ($i = 0, $i_max = count($value); $i < $i_max; $i++) {
-      $this->types[$i]->verifyValue($value[$i], $use_resolver);
+      $this->types[$i]->verifyValue($value[$i]);
     }
   }
 
   protected function hasInstanceInside(): bool {
-    return in_array(true, array_map(fn(PHPDocType $type) => $type->hasInstanceInside(), $this->types), true);
+    return in_array(true, array_map(fn(PhpDocType $type) => $type->hasInstanceInside(), $this->types), true);
   }
 
   /** @param mixed $value */

@@ -7,45 +7,44 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
+use KPHP\PhpDocParsing\PhpDocType;
+use KPHP\PhpDocParsing\UseResolver;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 
 class InstanceMetadata {
   /**@var FieldMetadata[] */
-  public $fields_data = [];
+  public array $fields_data = [];
 
-  /**@var ?ReflectionClass */
-  public $reflection_of_instance = null;
-
-  /**@var ?UseResolver */
-  public $use_resolver = null;
+  public ReflectionClass $klass;
+  public UseResolver $use_resolver;
 
   /**
    * @throws ReflectionException
    * @throws RuntimeException
    */
-  public function __construct(string $instance) {
-    assert(is_string($instance) && $instance !== '' && $instance !== 'self');
-    $this->reflection_of_instance = new ReflectionClass($instance);
-    $this->use_resolver           = new UseResolver($this->reflection_of_instance);
+  public function __construct(string $class_name) {
+    assert($class_name !== '' && $class_name !== 'self');
+    $this->klass = new ReflectionClass($class_name);
+    $this->use_resolver = new UseResolver($this->klass);
 
-    if (strpos($this->reflection_of_instance->getDocComment(), '@kphp-serializable') === false) {
-      throw new RuntimeException('add @kphp-serializable phpdoc to class: ' . $this->reflection_of_instance->getName());
+    if (strpos($this->klass->getDocComment(), '@kphp-serializable') === false) {
+      throw new RuntimeException('add @kphp-serializable phpdoc to class: ' . $this->klass->getName());
     }
 
-    if ($this->reflection_of_instance->isAbstract() || $this->reflection_of_instance->isInterface() ||
-      ($this->reflection_of_instance->getParentClass() && $this->reflection_of_instance->getParentClass()->getProperties())) {
-      throw new RuntimeException('You may not serialize interfaces/abstract classes/polymorphic classes: ' . $this->reflection_of_instance->getName());
+    if ($this->klass->isAbstract() || $this->klass->isInterface() ||
+      ($this->klass->getParentClass() && $this->klass->getParentClass()->getProperties())) {
+      throw new RuntimeException('You may not serialize interfaces/abstract classes/polymorphic classes: ' . $this->klass->getName());
     }
 
-    preg_match('/@kphp-reserved-fields\s+\[(\d+)\s*(?:,\s*(\d+))*]/', $this->reflection_of_instance->getDocComment(), $reserved_field_ids);
+    preg_match('/@kphp-reserved-fields\s+\[(\d+)\s*(?:,\s*(\d+))*]/', $this->klass->getDocComment(), $reserved_field_ids);
     array_shift($reserved_field_ids);
     $reserved_field_ids = array_map('intval', $reserved_field_ids);
 
-    foreach ($this->reflection_of_instance->getProperties() as $property) {
+    foreach ($this->klass->getProperties() as $property) {
       $curDocComment = $property->getDocComment();
       $curName = $property->getName();
       preg_match('/@kphp-serialized-field\s+(\d+|none)[\s*]/', $curDocComment, $matches);
@@ -100,14 +99,19 @@ class InstanceMetadata {
 
         $field->type = $type_name;
       }
-      if ($field->type === '') {
-        throw new RuntimeException("Can't detect type of field {$curName}");
-      }
 
-      $type_copy = $field->type;
-      $field->phpdoc_type = PHPDocType::parse($type_copy);
-      if ($field->phpdoc_type === null) {
-        throw new RuntimeException("Can't parse phpdoc of field {$curName}: {$field->type}");
+      try {
+        if ($field->type === '') {
+          throw new RuntimeException("no @var above");
+        }
+        $type_copy = $field->type;
+
+        $field->phpdoc_type = PHPDocType::parse($type_copy, $this->use_resolver);
+        if ($field->phpdoc_type === null) {
+          throw new RuntimeException("@var has invalid or unsupported format");
+        }
+      } catch (\Exception $ex) {
+        throw new RuntimeException("Error parsing phpdoc of field $class_name::\$$curName: {$ex->getMessage()}");
       }
       $this->fields_data[] = $field;
     }

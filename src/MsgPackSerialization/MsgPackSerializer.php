@@ -7,12 +7,12 @@
 /** @noinspection KphpReturnTypeMismatchInspection */
 /** @noinspection KphpParameterTypeMismatchInspection */
 
-namespace KPHP\InstanceSerialization;
+namespace KPHP\MsgPackSerialization;
 
 use ReflectionException;
 use RuntimeException;
 
-class InstanceSerializer {
+class MsgPackSerializer {
   /**@var (mixed|DeepForceFloat32)[] */
   public $tags_values = [];
 
@@ -45,12 +45,13 @@ class InstanceSerializer {
   /** @param mixed $value */
   private function checkTypeOf(FieldMetadata $field, $value): void {
     try {
-      $field->phpdoc_type->verifyValue($value, $this->instance_metadata->use_resolver);
+      $field->phpdoc_type->verifyValue($value);
     } catch (RuntimeException $e) {
       if (ClassTransformer::$depth > ClassTransformer::$max_depth) {
         throw $e;
       }
-      throw new RuntimeException("in field: `{$field->name}` -> " . $e->getMessage(), 0);
+      $class_name = $this->instance_metadata->klass->name;
+      throw new RuntimeException("in field $class_name::\${$field->name}: " . $e->getMessage());
     }
   }
 
@@ -59,7 +60,7 @@ class InstanceSerializer {
    * @throws ReflectionException
    */
   private function getValue(FieldMetadata $field, object $instance) {
-    $property = $this->instance_metadata->reflection_of_instance->getProperty($field->name);
+    $property = $this->instance_metadata->klass->getProperty($field->name);
     $property->setAccessible(true);
     return $property->getValue($instance);
   }
