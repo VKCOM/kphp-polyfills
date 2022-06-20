@@ -12,26 +12,6 @@ namespace KPHP\PhpDocParsing;
 use RuntimeException;
 
 abstract class PhpDocType {
-  /*
-    PHPDoc grammar
-
-    # according to https://www.php.net/manual/en/language.oop5.basic.php
-    InstanceType  ::= ^\?[A-Z][a-zA-Z0-9_\x80-\xff\]* | "self" | "static" | "object"
-
-    #according to https://docs.phpdoc.org/latest/guides/types.html
-    PrimitiveType ::= "int"     | "integer" | "float" | "string" | "array" | "mixed"
-                      "boolean" | "bool"    | "false" | "true"   | "null"  | "NULL"
-
-    TupleType     ::= "\"? "tuple(" PHPDocType ("," PHPDocType)* ")"
-    ArrayType     ::= ("(" PHPDocType ")" | PHPDocType) "[]"*
-    OrType        ::= PHPDocType "|" PHPDocType
-    PHPDocType    ::= InstanceType   |
-                      PrimitiveType  |
-                      TupleType      |
-                      ArrayType      |
-                      OrType         |
-                      "?" PHPDocType |
-  */
   public static function throwRuntimeException($value, $type): void {
     $value_str = str_replace("\n", " ", substr(var_export($value, true), 0, 100));
     $type_str  = var_export($type, true);
@@ -46,7 +26,7 @@ abstract class PhpDocType {
     return false;
   }
 
-  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PHPDocType {
+  protected static function parseImpl(string &$str, UseResolver $use_resolver): ?PhpDocType {
     $nullable = self::removeIfStartsWith($str, "?");
 
     $res = InstanceType::parse($str, $use_resolver) ?:

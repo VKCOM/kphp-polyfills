@@ -17,7 +17,7 @@ class FieldMetadata {
   /**@var string */
   public $type = "";
 
-  /**@var PHPDocType */
+  /**@var PhpDocType */
   public $phpdoc_type = null;
 
   /**@var bool */

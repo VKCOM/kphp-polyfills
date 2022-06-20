@@ -106,7 +106,7 @@ class InstanceMetadata {
         }
         $type_copy = $field->type;
 
-        $field->phpdoc_type = PHPDocType::parse($type_copy, $this->use_resolver);
+        $field->phpdoc_type = PhpDocType::parse($type_copy, $this->use_resolver);
         if ($field->phpdoc_type === null) {
           throw new RuntimeException("@var has invalid or unsupported format");
         }
