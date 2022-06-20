@@ -9,6 +9,7 @@
 
 namespace KPHP\PhpDocParsing;
 
+use KPHP\JsonSerialization\KphpJsonDecodeException;
 use RuntimeException;
 
 class PrimitiveType extends PhpDocType {
@@ -86,5 +87,17 @@ class PrimitiveType extends PhpDocType {
 
   protected function hasInstanceInside(): bool {
     return false;
+  }
+
+  public function isNullAllowed(): bool {
+    return $this->ptype === 'null' || $this->ptype === 'NULL' || $this->ptype === 'mixed' || $this->ptype === 'any';
+  }
+
+  public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder) {
+    if (!$this->doesValueFitThisType($v)) {
+      throw new KphpJsonDecodeException("unexpected type " . gettype($v) . " for key $json_path");
+    }
+
+    return $v;
   }
 }

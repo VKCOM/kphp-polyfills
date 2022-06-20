@@ -35,9 +35,9 @@ abstract class PhpDocType {
     $nullable = self::removeIfStartsWith($str, "?");
 
     $res = InstanceType::parse($str, $use_resolver) ?:
-           PrimitiveType::parse($str, $use_resolver) ?:
-           TupleType::parse($str, $use_resolver) ?:
-           ArrayType::parse($str, $use_resolver);
+      PrimitiveType::parse($str, $use_resolver) ?:
+        TupleType::parse($str, $use_resolver) ?:
+          ArrayType::parse($str, $use_resolver);
 
     if (!$res) {
       return null;
@@ -85,4 +85,12 @@ abstract class PhpDocType {
   abstract public function verifyValue($value): void;
 
   abstract protected function hasInstanceInside(): bool;
+
+  abstract public function isNullAllowed(): bool;
+
+  /**
+   * @param mixed|object $v
+   * @return mixed|object
+   */
+  abstract public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder);
 }

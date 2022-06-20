@@ -160,18 +160,16 @@ function instance_cast($instance, string $class_name) {
  * Similar to (array)$any_object, but deep and with strict behaviour.
  * Useful for logging and debugging.
  * For all classes that are array-converted, KPHP generates an effective C++ visitor.
- * @param object $instance Any instance
  * @param bool   $with_class_names Should the resulting array contain class names
  * @param bool   $public_members_only Should the resulting array contain only public fields
  * @return mixed[]
  */
-
-function to_array_debug($instance, $with_class_names = false, $public_members_only = false) {
+function to_array_debug($any, $with_class_names = false, $public_members_only = false) {
   // (array) $instance in PHP outputs private/protected fields as '\0ClassName\0fieldName'
   // kphp omit such control characters
   $isPrivateField = function($key) { return $key[0] === "\0"; };
 
-  $demangleField = function($key) use ($isPrivateField){
+  $demangleField = function($key) use ($isPrivateField) {
     if ($isPrivateField($key)) {
       $key = preg_replace("/\\0.+\\0/", '', $key);
     }
@@ -198,8 +196,10 @@ function to_array_debug($instance, $with_class_names = false, $public_members_on
     return $v;
   };
 
-  assert(is_object($instance));
-  return $toArray($instance);
+  if ($any === null) {
+    return [];
+  }
+  return $toArray($any);
 }
 
 /**
@@ -207,6 +207,50 @@ function to_array_debug($instance, $with_class_names = false, $public_members_on
  */
 function instance_to_array($instance, $with_class_names = false) {
   return to_array_debug($instance, $with_class_names);
+}
+
+class JsonEncoder {
+  // these constants can be overridden in child classes
+  const rename_policy     = 'none';
+  const visibility_policy = 'all';
+  const skip_if_default   = false;
+  const float_precision   = 0;
+
+  private function __construct() { }
+
+  public static function encode(?object $instance, int $flags = 0, array $more = []): string {
+    if ($instance === null) {
+      return 'null';
+    }
+    try {
+      self::$lastError = '';
+      $serializer = new KPHP\JsonSerialization\JsonSerializer($instance, get_class($instance), static::class);
+      return $serializer->serializeInstanceToJson($flags, $more);
+    } catch (Throwable $e) {
+      self::$lastError = $e->getMessage();
+      return '';
+    }
+  }
+
+  public static function decode(string $json_string, string $class_name): ?object {
+    try {
+      self::$lastError = '';
+      $deserializer = new KPHP\JsonSerialization\JsonDeserializer($class_name, static::class);
+      return $deserializer->unserializeInstanceFromJson($json_string);
+    } catch (\JsonException $ex) {
+      self::$lastError = $json_string === '' ? 'provided empty json string' : 'failed to parse json string: ' . $ex->getMessage();
+      return null;
+    } catch (Throwable $ex) {
+      self::$lastError = $ex->getMessage();
+      return null;
+    }
+  }
+
+  public static function getLastError(): string {
+    return self::$lastError;
+  }
+
+  private static string $lastError = '';
 }
 
 #endregion

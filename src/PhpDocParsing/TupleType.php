@@ -9,6 +9,7 @@
 
 namespace KPHP\PhpDocParsing;
 
+use KPHP\JsonSerialization\KphpJsonDecodeException;
 use RuntimeException;
 
 class TupleType extends PhpDocType {
@@ -77,6 +78,14 @@ class TupleType extends PhpDocType {
     if (count($this->types) !== count($value)) {
       self::throwRuntimeException($value, $this->types);
     }
+  }
+
+  public function isNullAllowed(): bool {
+    return false;
+  }
+
+  public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder) {
+    throw new KphpJsonDecodeException("tuples are not supported in json: $json_path");
   }
 }
 

@@ -9,6 +9,7 @@
 
 namespace KPHP\PhpDocParsing;
 
+use http\Exception\RuntimeException;
 use Throwable;
 
 class OrType extends PhpDocType {
@@ -47,5 +48,17 @@ class OrType extends PhpDocType {
 
   protected function hasInstanceInside(): bool {
     return $this->type1->hasInstanceInside() || $this->type2->hasInstanceInside();
+  }
+
+  public function isNullAllowed(): bool {
+    return $this->type1->isNullAllowed() || $this->type2->isNullAllowed();
+  }
+
+  public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder) {
+    try {
+      return $this->type1->fromJson($json_path, $v, $json_encoder);
+    } catch (\Throwable $_) {
+      return $this->type2->fromJson($json_path, $v, $json_encoder);
+    }
   }
 }

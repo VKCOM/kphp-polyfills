@@ -9,6 +9,7 @@
 
 namespace KPHP\PhpDocParsing;
 
+use KPHP\JsonSerialization\KphpJsonDecodeException;
 use RuntimeException;
 
 class ArrayType extends PhpDocType {
@@ -60,6 +61,23 @@ class ArrayType extends PhpDocType {
     foreach ($value as $item) {
       $this->inner->verifyValue($item);
     }
+  }
+
+  public function isNullAllowed(): bool {
+    return false;
+  }
+
+  public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder) {
+    if (!is_array($v) && !($v instanceof \stdClass)) {
+      throw new KphpJsonDecodeException("unexpected type " . gettype($v) . " for key $json_path");
+    }
+    $res = [];
+    $json_path->enter(null);
+    foreach ($v as $k => $item) {
+      $res[$k] = $this->inner->fromJson($json_path, $item, $json_encoder);
+    }
+    $json_path->leave();
+    return $res;
   }
 }
 
