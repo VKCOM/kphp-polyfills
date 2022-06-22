@@ -13,8 +13,13 @@ use RuntimeException;
 
 abstract class PhpDocType {
   public static function throwRuntimeException($value, $type): void {
-    $value_str = str_replace("\n", " ", substr(var_export($value, true), 0, 100));
-    $type_str  = var_export($type, true);
+    if (function_exists('vk_json_encode')) {
+      $value_str = vk_json_encode($value);
+      $type_str = vk_json_encode($type);
+    } else {
+      $value_str = json_encode($value);
+      $type_str = json_encode($type);
+    }
     throw new RuntimeException("can't assign to type $type_str from $value_str");
   }
 
