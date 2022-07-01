@@ -39,6 +39,7 @@ class JsonDeserializer {
     if ($this->reflected->flatten_class) {
       $instance = $this->reflected->newInstanceWithoutConstructor();
       $this->decodeFlattenClassSingleField($json_path, $v, $instance);
+      $this->callWakeupMagicMethodIfExists($instance);
       return $instance;
     }
 
@@ -55,6 +56,7 @@ class JsonDeserializer {
       $p_deserializer = new JsonDeserializer($parent->class_name, $this->json_encoder);
       $p_deserializer->decodeRegularClassFields($json_path, $v, $instance);
     }
+    $this->callWakeupMagicMethodIfExists($instance);
     return $instance;
   }
 
@@ -97,5 +99,11 @@ class JsonDeserializer {
     }
 
     return $field_type->fromJson($json_path, $json_value, $this->json_encoder);
+  }
+
+  private function callWakeupMagicMethodIfExists(object $instance) {
+    if (method_exists($instance, '__wakeup')) {
+      $instance->__wakeup();
+    }
   }
 }
