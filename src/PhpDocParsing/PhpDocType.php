@@ -35,9 +35,9 @@ abstract class PhpDocType {
     $nullable = self::removeIfStartsWith($str, "?");
 
     $res = InstanceType::parse($str, $use_resolver) ?:
-      PrimitiveType::parse($str, $use_resolver) ?:
-        TupleType::parse($str, $use_resolver) ?:
-          ArrayType::parse($str, $use_resolver);
+           PrimitiveType::parse($str, $use_resolver) ?:
+           TupleType::parse($str, $use_resolver) ?:
+           ArrayType::parse($str, $use_resolver);
 
     if (!$res) {
       return null;
