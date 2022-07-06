@@ -6,16 +6,12 @@
 namespace KPHP\JsonSerialization;
 
 
-function is_uppercase(string $str): bool {
-  return (bool)preg_match('/^[A-Z]+$/', $str);
-}
-
 // perform "blahBlah" to "blah_blah" translation
 function transform_to_snake_case(string $origin): string {
   $name = "";
 
   foreach (str_split($origin) as $c) {
-    if (is_uppercase($c)) {
+    if (ctype_upper($c)) {
       if (strlen($name) > 0 && $name[-1] != '_') {
         $name .= '_';
       }
