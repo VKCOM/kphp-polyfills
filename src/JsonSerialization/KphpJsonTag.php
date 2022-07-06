@@ -115,9 +115,9 @@ class KphpJsonTag {
   }
 
   static private function parse_fields_delimited_by_comma(string $attr_type, string $rhs): string {
-    // convert "id, age" to ",id,age," for fast later search of substr ",{name},"
+    // convert "$id, $age" to ",id,age," for fast later search of substr ",{name},"
     $fields_delim = ',';
-    foreach (preg_split('/[, ]+/', $rhs) as $field_name) {
+    foreach (preg_split('/[\$, ]+/', $rhs) as $field_name) {
       $fields_delim .= $field_name;
       $fields_delim .= ',';
     }
