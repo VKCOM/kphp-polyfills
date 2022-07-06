@@ -31,10 +31,10 @@ class JsonSerializer {
     $writer = new JsonWriter($flags & JSON_PRETTY_PRINT, $flags & JSON_PRESERVE_ZERO_FRACTION);
     $this->encodeCurrentInstance($writer, $more);
 
-    if (!$writer->IsComplete()) {
+    if (!$writer->is_complete()) {
       throw new KphpJsonEncodeException("internal error: resulted in incomplete json");
     }
-    return $writer->GetJson();
+    return $writer->get_final_json();
   }
 
   private function encodeCurrentInstance(JsonWriter $writer, array $more = []) {
@@ -46,7 +46,7 @@ class JsonSerializer {
     if (++self::$depth > self::MAX_DEPTH) {
       throw new KphpJsonEncodeException("allowed depth=" . self::MAX_DEPTH . " of json object exceeded");
     }
-    $writer->StartObject();
+    $writer->start_object();
 
     if (!$this->reflected->parent) {
       $this->encodeRegularClassFields($writer);
@@ -64,10 +64,10 @@ class JsonSerializer {
     }
 
     foreach ($more as $k => $v) {
-      $writer->Key($k);
+      $writer->write_key($k);
       $this->encodeValue($writer, $v, 0, false, false);
     }
-    $writer->EndObject();
+    $writer->end_object();
     --self::$depth;
   }
 
@@ -111,21 +111,21 @@ class JsonSerializer {
       return;
     }
 
-    $writer->Key($field->json_key);
+    $writer->write_key($field->json_key);
     $this->encodeValue($writer, $v, $field->float_precision, $field->array_as_hashmap, $field->raw_string);
   }
 
   private function encodeValue(JsonWriter $writer, $v, int $float_precision, bool $array_as_hashmap, bool $raw_string) {
     if ($raw_string) {
-      $writer->RawString($v);
+      $writer->write_raw_string($v);
       return;
     }
     if ($float_precision !== 0) {
-      $writer->SetFloatPrecision($float_precision);
+      $writer->set_float_precision($float_precision);
     }
     $this->writeAnyValue($writer, $v, $array_as_hashmap);
     if ($float_precision !== 0) {
-      $writer->RestoreFloatPrecision();
+      $writer->restore_float_precision();
     }
   }
 
@@ -136,31 +136,31 @@ class JsonSerializer {
 
   private function writeAnyValue(JsonWriter $writer, $v, bool $array_as_hashmap) {
     if (is_int($v)) {
-      $writer->Int($v);
+      $writer->write_int($v);
     } else if (is_string($v)) {
-      $writer->String($v);
+      $writer->write_string($v);
     } else if (is_float($v)) {
-      $writer->Double($v);
+      $writer->write_double($v);
     } else if (is_bool($v)) {
-      $writer->Bool($v);
+      $writer->write_bool($v);
     } else if (is_null($v)) {
-      $writer->Null();
+      $writer->write_null();
 
     } else if (is_array($v)) {
       $as_vector = !$array_as_hashmap && JsonUtils::is_array_vector_or_pseudo_vector($v);
       if ($as_vector) {
-        $writer->StartArray();
+        $writer->start_array();
         foreach ($v as $item) {
           $this->writeAnyValue($writer, $item, false);
         }
-        $writer->EndArray();
+        $writer->end_array();
       } else {
-        $writer->StartObject();
+        $writer->start_object();
         foreach ($v as $k => $item) {
-          $writer->Key($k, true);
+          $writer->write_key($k, true);
           $this->writeAnyValue($writer, $item, false);
         }
-        $writer->EndObject();
+        $writer->end_object();
       }
 
     } else if (is_object($v)) {

@@ -28,18 +28,18 @@ class JsonWriter {
   }
 
 
-  function Bool(bool $b) {
-    $this->RegisterValue();
+  function write_bool(bool $b) {
+    $this->register_value();
     $this->buf .= ($b ? "true" : "false");
   }
 
-  function Int(int $i) {
-    $this->RegisterValue();
+  function write_int(int $i) {
+    $this->register_value();
     $this->buf .= $i;
   }
 
-  function Double(float $d) {
-    $this->RegisterValue();
+  function write_double(float $d) {
+    $this->register_value();
     if (is_nan($d) || is_infinite($d)) {
       $d = 0.0;
     }
@@ -55,24 +55,24 @@ class JsonWriter {
     }
   }
 
-  function String(string $s) {
-    $this->RegisterValue();
+  function write_string(string $s) {
+    $this->register_value();
     $this->buf .= '"';
     self::escape_json_string($this->buf, $s);
     $this->buf .= '"';
   }
 
-  function RawString(string $s) {
-    $this->RegisterValue();
+  function write_raw_string(string $s) {
+    $this->register_value();
     $this->buf .= $s;
   }
 
-  function Null() {
-    $this->RegisterValue();
+  function write_null() {
+    $this->register_value();
     $this->buf .= 'null';
   }
 
-  function Key(string $key, bool $escape = false) {
+  function write_key(string $key, bool $escape = false) {
     if ($this->stack_top_ === -1 || $this->stack_[$this->stack_top_]['in_array']) {
       throw new KphpJsonEncodeException("json key is allowed only inside object");
     }
@@ -81,7 +81,7 @@ class JsonWriter {
     }
     if ($this->pretty_print) {
       $this->buf .= "\n";
-      $this->WriteIndent();
+      $this->write_indent();
     }
     $this->buf .= '"';
     if ($escape) {
@@ -96,42 +96,42 @@ class JsonWriter {
     }
   }
 
-  function StartObject() {
-    $this->NewLevel(false);
+  function start_object() {
+    $this->new_level(false);
   }
 
-  function EndObject() {
-    $this->ExitLevel(false);
+  function end_object() {
+    $this->exit_level(false);
   }
 
-  function StartArray() {
-    $this->NewLevel(true);
+  function start_array() {
+    $this->new_level(true);
   }
 
-  function EndArray() {
-    $this->ExitLevel(true);
+  function end_array() {
+    $this->exit_level(true);
   }
 
-  function IsComplete(): bool {
+  function is_complete(): bool {
     return $this->stack_top_ == -1 && $this->has_root_;
   }
 
-  function GetJson(): string {
+  function get_final_json(): string {
     return $this->buf;
   }
 
-  function SetFloatPrecision(int $float_precision) {
+  function set_float_precision(int $float_precision) {
     if ($this->float_precision) {
       $this->precision_stack_[] = $this->float_precision;
     }
     $this->float_precision = $float_precision;
   }
 
-  function RestoreFloatPrecision() {
+  function restore_float_precision() {
     $this->float_precision = count($this->precision_stack_) ? array_pop($this->precision_stack_) : 0;
   }
 
-  private function RegisterValue() {
+  private function register_value() {
     if ($this->has_root_ && $this->stack_top_ === -1) {
       throw new KphpJsonEncodeException("attempt to set value twice in a root of json");
     }
@@ -145,27 +145,27 @@ class JsonWriter {
       }
       if ($this->pretty_print) {
         $this->buf .= "\n";
-        $this->WriteIndent();
+        $this->write_indent();
       }
     }
     $this->stack_[$this->stack_top_]['values_count']++;
   }
 
-  private function WriteIndent() {
+  private function write_indent() {
     if ($this->indent_) {
       $this->buf .= str_repeat(' ', $this->indent_);
     }
   }
 
-  private function NewLevel(bool $is_array) {
-    $this->RegisterValue();
+  private function new_level(bool $is_array) {
+    $this->register_value();
     $this->stack_top_++;
     $this->stack_[$this->stack_top_] = ['in_array' => $is_array, 'values_count' => 0];
     $this->buf .= ($is_array ? '[' : '{');
     $this->indent_ += 4;
   }
 
-  private function ExitLevel(bool $is_array) {
+  private function exit_level(bool $is_array) {
     if ($this->stack_top_ === -1) {
       throw new KphpJsonEncodeException("brace disbalance");
     }
@@ -177,7 +177,7 @@ class JsonWriter {
     $this->indent_ -= 4;
     if ($this->pretty_print && $cur_level['values_count']) {
       $this->buf .= "\n";
-      $this->WriteIndent();
+      $this->write_indent();
     }
     $this->buf .= $is_array ? ']' : '}';
   }
