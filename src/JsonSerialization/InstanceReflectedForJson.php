@@ -46,6 +46,7 @@ class InstanceReflectedForJson {
     try {
       $this->kphp_json_tags = KphpJsonTagList::create_from_phpdoc($this->use_resolver, $this->klass->getDocComment());
     } catch (\Exception $ex) {
+      trigger_error("Error at class $class_name: {$ex->getMessage()}", E_USER_WARNING);
       throw new \RuntimeException("Error at class $class_name: {$ex->getMessage()}");
     }
 
