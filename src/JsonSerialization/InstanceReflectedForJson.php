@@ -64,6 +64,7 @@ class InstanceReflectedForJson {
 
         $this->fields[$property->name] = $field;
       } catch (\Exception $ex) {
+        trigger_error("Error at field $class_name::\${$property->name}: {$ex->getMessage()}", E_USER_WARNING);
         throw new \RuntimeException("Error at field $class_name::\${$property->name}: {$ex->getMessage()}");
       }
     }

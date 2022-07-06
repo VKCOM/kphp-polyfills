@@ -104,6 +104,7 @@ class JsonSerializer {
     $property = $this->reflected->getProperty($field->field_name);
     $v = $property->isInitialized($this->instance) ? $property->getValue($this->instance) : null;
     if ($v === null && !$field->type->isNullAllowed()) {
+      trigger_error("field {$this->reflected->class_name}::\$$field->field_name seems to be uninitialized", E_USER_WARNING);
       throw new KphpJsonEncodeException("field {$this->reflected->class_name}::\$$field->field_name seems to be uninitialized");
     }
 
