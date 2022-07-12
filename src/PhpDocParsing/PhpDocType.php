@@ -85,4 +85,12 @@ abstract class PhpDocType {
   abstract public function verifyValue($value): void;
 
   abstract protected function hasInstanceInside(): bool;
+
+  abstract public function isNullAllowed(): bool;
+
+  /**
+   * @param mixed|object $v
+   * @return mixed|object
+   */
+  abstract public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder);
 }

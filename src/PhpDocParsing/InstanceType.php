@@ -9,10 +9,11 @@
 
 namespace KPHP\PhpDocParsing;
 
+use KPHP\JsonSerialization\JsonDeserializer;
+use KPHP\JsonSerialization\KphpJsonDecodeException;
 use KPHP\MsgPackSerialization\MsgPackDeserializer;
 use KPHP\MsgPackSerialization\MsgPackSerializer;
 use ReflectionClass;
-use ReflectionException;
 use RuntimeException;
 
 class InstanceType extends PhpDocType {
@@ -65,6 +66,16 @@ class InstanceType extends PhpDocType {
 
   protected function hasInstanceInside(): bool {
     return true;
+  }
+
+  public function isNullAllowed(): bool {
+    return false; // note, that "A" doesn't allow null here, only "?A" does
+  }
+
+  public function fromJson(\KPHP\JsonSerialization\JsonPath $json_path, $v, string $json_encoder) {
+    // here we shouldn't check for stdClass: $v could be anything due to flatten classes
+    $sub_deserializer = new JsonDeserializer($this->class_name, $json_encoder);
+    return $sub_deserializer->decodeAndReturnInstance($json_path, $v);
   }
 }
 
