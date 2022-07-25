@@ -690,6 +690,12 @@ function instance_serialize(object $instance): ?string {
   });
 }
 
+function instance_serialize_safe(object $instance): ?string {
+  KPHP\MsgPackSerialization\ClassTransformer::$depth = 0;
+  $packer = (new MessagePack\Packer(MessagePack\PackOptions::FORCE_STR))->extendWith(new KPHP\MsgPackSerialization\ClassTransformer());
+  return $packer->pack($instance);
+}
+
 function instance_deserialize(string $packed_str, string $type_of_instance): ?object {
   return _php_serialize_helper_run_or_warning(static function() use ($packed_str, $type_of_instance) {
     $unpacked_array = msgpack_deserialize_safe($packed_str);
@@ -697,6 +703,12 @@ function instance_deserialize(string $packed_str, string $type_of_instance): ?ob
     $instance_parser = new KPHP\MsgPackSerialization\MsgPackDeserializer($type_of_instance);
     return $instance_parser->fromUnpackedArray($unpacked_array);
   });
+}
+
+function instance_deserialize_safe(string $packed_str, string $type_of_instance): ?object {
+  $unpacked_array = msgpack_deserialize_safe($packed_str);
+  $instance_parser = new KPHP\MsgPackSerialization\MsgPackDeserializer($type_of_instance);
+  return $instance_parser->fromUnpackedArray($unpacked_array);
 }
 
 /**
