@@ -150,9 +150,14 @@ function instance_cache_delete(string $key): bool {
  * @param string $class_name Compile-time constant
  * @ return can't be expressed in phpdoc, done via KPHPStorm plugin for IDE
  */
-function instance_cast($instance, string $class_name) {
-  // it just returns the argument, but KPHP infers it as SomeClass
-  return $instance;
+function instance_cast(?object $instance, string $class_name) {
+  if ($instance === null) {
+    return null;
+  }
+  if (!($instance instanceof $class_name)) {
+    return null;
+  }
+  return $instance;  // it just returns the argument, but KPHP infers it as SomeClass
 }
 
 /**
@@ -208,6 +213,17 @@ function to_array_debug($any, $with_class_names = false, $public_members_only = 
 function instance_to_array($instance, $with_class_names = false) {
   return to_array_debug($instance, $with_class_names);
 }
+
+/**
+ * classof($obj) is a KPHP construct to express some logic in generics, like
+ * `instance_cast($arg, classof($obj))`
+ * In KPHP, it works at compile-time, no such runtime function exists.
+ * In PHP, it just returns get_class(), here we can't do it better, though it's not generally true, use with care.
+ */
+function classof(object $obj): string {
+  return get_class($obj);
+}
+
 
 class JsonEncoder {
   // these constants can be overridden in child classes
