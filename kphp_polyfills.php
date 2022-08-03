@@ -706,7 +706,7 @@ function instance_serialize(object $instance): ?string {
   });
 }
 
-function instance_serialize_safe(object $instance): ?string {
+function instance_serialize_safe(object $instance): string {
   KPHP\MsgPackSerialization\ClassTransformer::$depth = 0;
   $packer = (new MessagePack\Packer(MessagePack\PackOptions::FORCE_STR))->extendWith(new KPHP\MsgPackSerialization\ClassTransformer());
   return $packer->pack($instance);
