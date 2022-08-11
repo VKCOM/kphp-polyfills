@@ -1180,6 +1180,29 @@ function ffi_memcpy_string(\FFI\CData $dst, string $src, int $size) {
 }
 
 /**
+ * identical to FFI::cast('uintptr_t', $ptr)
+ * the addr obtained from this function can be used with ffi_cast_addr2ptr
+ * @param ffi_cdata<C, void*> $ptr
+ * @return int
+ */
+function ffi_cast_ptr2addr($ptr) {
+  // For some reason, PHP doesn't like void* cast to scalar.
+  // As a temporary (?) workaround, cast void* to some sized pointer first.
+  $as_sized_ptr = \FFI::cast('uint8_t*', $ptr);
+  return \FFI::cast('uintptr_t', $as_sized_ptr)->cdata;
+}
+
+/**
+ * identical to FFI::cast('void*', $addr)
+ * $addr should be obtained from ffi_cast_ptr2addr
+ * @param int $addr
+ * @return ffi_cdata<C, void*>
+ */
+function ffi_cast_addr2ptr($addr) {
+  return \FFI::cast('void*', $addr);
+}
+
+/**
  * ffi_array_set implements array or pointer update operation: $arr[$index] = $value
  * For CData arrays, a bound check if performed: PHP throws and KPHP triggers
  * a critical error if $index is out of bounds
