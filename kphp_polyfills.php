@@ -1100,6 +1100,19 @@ function vk_dot_product(array $aVector, array $bVector): float {
   return $result;
 }
 
+/**
+ * Sends an HTTP 103 header — an intermediate header, in the middle of script execution, before sending 200 OK.
+ * It's used for Web, to force a browser to preload css/js/other static.
+ * Typical usage is: start handling request -> send 103 -> prepare full response -> send 200.
+ * Warning! Be sure to test via user-agent whether a client's browser would correctly accept this header.
+ * @param string[] $headers
+ */
+function send_http_103_early_hints(array $headers) {
+  // in PHP, do nothing;
+  // in KPHP, it's a built-in function that sends $headers as passed bypassing response buffers
+  // all `header()` calls made before sending 103 remain buffered, they will be applied on 200 response
+}
+
 
 function likely(bool $value): bool {
   return $value;
