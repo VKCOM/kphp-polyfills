@@ -181,8 +181,14 @@ function to_array_debug($any, $with_class_names = false, $public_members_only = 
     return $key;
   };
 
-  $toArray = function($v) use (&$toArray, &$demangleField, &$with_class_names, $public_members_only, $isPrivateField) {
+  $depth = 0;
+  $recursion_depth_exceeded = false;
+  $toArray = function($v) use (&$toArray, &$demangleField, &$with_class_names, $public_members_only, $isPrivateField, &$depth, &$recursion_depth_exceeded) {
     if (is_object($v)) {
+      if ($depth++ > 64) {
+        $recursion_depth_exceeded = true;
+        return [];
+      }
       $result = [];
       foreach ((array)$v as $field => $value) {
         if ($public_members_only && $isPrivateField($field)) {
@@ -193,6 +199,7 @@ function to_array_debug($any, $with_class_names = false, $public_members_only = 
       if ($with_class_names) {
         $result['__class_name'] = get_class($v);
       }
+      --$depth;
       return $result;
     }
     if (is_array($v)) {
@@ -204,7 +211,8 @@ function to_array_debug($any, $with_class_names = false, $public_members_only = 
   if ($any === null) {
     return [];
   }
-  return $toArray($any);
+  $result = $toArray($any);
+  return $recursion_depth_exceeded ? [] : $result;
 }
 
 /**
