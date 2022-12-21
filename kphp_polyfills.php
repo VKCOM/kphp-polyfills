@@ -1056,7 +1056,7 @@ function kphp_set_context_on_error(array $tags, array $extra_info, string $env =
 function kphp_get_runtime_config() {
   // in PHP, do nothing;
   // in KPHP it is a built-in function that returns the runtime configuration that was set when the server started
-  return false;
+  return null;
 }
 
 /**
