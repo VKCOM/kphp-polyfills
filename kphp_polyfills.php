@@ -1052,6 +1052,12 @@ function kphp_backtrace(bool $pretty = true): array {
 function kphp_set_context_on_error(array $tags, array $extra_info, string $env = '') {
 }
 
+/** @return mixed */
+function kphp_get_runtime_config() {
+  // in PHP, do nothing;
+  // in KPHP it is a built-in function that returns the runtime configuration that was set when the server started
+  return false;
+}
 
 /**
  * 'libs' are ability to split a monorepo into several repos, but with linkage to one whole KPHP binary.
