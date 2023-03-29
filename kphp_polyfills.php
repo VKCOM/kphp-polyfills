@@ -1059,6 +1059,13 @@ function kphp_get_runtime_config() {
   return null;
 }
 
+/** @return tuple(int, int, int, int) */
+function get_shared_webserver_stats() {
+    //in PHP, do nothing;
+    //in KPHP it is built-in function that returns buffered webserver information
+    return tuple(0, 0, 0, 0);
+}
+
 /**
  * 'libs' are ability to split a monorepo into several repos, but with linkage to one whole KPHP binary.
  * require_lib() just includes PHP file here, but is a keyword in KPHP that manages dependencies.
