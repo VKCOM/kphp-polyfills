@@ -1060,7 +1060,7 @@ function kphp_get_runtime_config() {
 }
 
 /** @return tuple(int, int, int, int) */
-function get_shared_webserver_stats() {
+function get_webserver_stats() {
     //in PHP, do nothing;
     //in KPHP it is built-in function that returns buffered webserver information
     return tuple(0, 0, 0, 0);
