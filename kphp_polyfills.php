@@ -1186,6 +1186,11 @@ class CompileTimeLocation {
 function set_migration_php8_warning(int $mask): void {}
 
 /**
+ * Enabling the mode for search for incorrect encoding names.
+ */
+function set_detect_incorrect_encoding_names_warning(bool $show): void {}
+
+/**
  * Gives a ballpark size estimate of the given value, in bytes.
  * Results may differ greatly from KPHP
  */
