@@ -1191,6 +1191,11 @@ function set_migration_php8_warning(int $mask): void {}
 function set_detect_incorrect_encoding_names_warning(bool $show): void {}
 
 /**
+ * Enabling new version of gmmktime function
+ */
+function set_use_updated_gmmktime(bool $enable): void {}
+
+/**
  * Gives a ballpark size estimate of the given value, in bytes.
  * Results may differ greatly from KPHP
  */
