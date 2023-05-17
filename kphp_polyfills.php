@@ -865,6 +865,22 @@ function memory_get_static_usage(): int {
   return 0;
 }
 
+/**
+ * Returns dictionary with the following stats:
+ * 'memory_limit'          - max memory available (512MB by default)
+ * 'real_memory_used'      - right bound at memory arena
+ * 'memory_used'           - total memory currently used
+ * 'max_real_memory_used'  - max of 'real_memory_used'
+ * 'max_memory_used'       - max of 'memory_used'
+ * 'defragmentation_calls' - the total number of defragmentation process calls
+ * 'huge_memory_pieces'    - the number of huge memory pirces (in rb tree)
+ * 'small_memory_pieces'   - the number of small memory pieces (in lists)
+ * 'heap_memory_used'      - total heap memory currently used
+ * @return int[]
+ */
+function memory_get_detailed_stats() {
+  return [];
+}
 
 #endregion
 
