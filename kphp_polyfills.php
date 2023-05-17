@@ -730,7 +730,7 @@ function instance_deserialize_safe(string $packed_str, string $type_of_instance)
 /**
  * @param mixed $value
  */
-function msgpack_serialize($value): string {
+function msgpack_serialize($value): ?string {
   return _php_serialize_helper_run_or_warning(static function() use ($value) {
     return msgpack_serialize_safe($value);
   });
