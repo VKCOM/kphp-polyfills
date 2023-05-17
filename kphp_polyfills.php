@@ -1048,6 +1048,10 @@ function register_kphp_on_warning_callback(callable $callback) {
   set_error_handler($handler);
 }
 
+function register_kphp_on_oom_callback(callable $callback): bool {
+  return false;
+}
+
 /**
  * Like register_kphp_on_warning_callback(), but it is not linked to any runtime error:
  * instead, it allows to get current demangled backtrace at the execution point.
@@ -1080,6 +1084,14 @@ function get_webserver_stats() {
     //in PHP, do nothing;
     //in KPHP it is built-in function that returns buffered webserver information
     return tuple(0, 0, 0, 0);
+}
+
+/**
+ * Get cluster name passed to KPHP server. In PHP does nothing
+ * @return string
+ */
+function get_kphp_cluster_name(): string {
+  return "";
 }
 
 /**
