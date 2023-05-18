@@ -397,14 +397,6 @@ function get_running_fork_id(): int {
   return 0;
 }
 
-function set_wait_all_forks_on_finish(bool $wait = true): bool {
-  static $wait_all_forks = false;
-  $prev = $wait_all_forks;
-  $wait_all_forks = $wait;
-  return $prev;
-}
-
-
 #endregion
 
 
@@ -730,7 +722,7 @@ function instance_deserialize_safe(string $packed_str, string $type_of_instance)
 /**
  * @param mixed $value
  */
-function msgpack_serialize($value): string {
+function msgpack_serialize($value): ?string {
   return _php_serialize_helper_run_or_warning(static function() use ($value) {
     return msgpack_serialize_safe($value);
   });
@@ -865,6 +857,22 @@ function memory_get_static_usage(): int {
   return 0;
 }
 
+/**
+ * Returns dictionary with the following stats:
+ * 'memory_limit'          - max memory available (512MB by default)
+ * 'real_memory_used'      - right bound at memory arena
+ * 'memory_used'           - total memory currently used
+ * 'max_real_memory_used'  - max of 'real_memory_used'
+ * 'max_memory_used'       - max of 'memory_used'
+ * 'defragmentation_calls' - the total number of defragmentation process calls
+ * 'huge_memory_pieces'    - the number of huge memory pirces (in rb tree)
+ * 'small_memory_pieces'   - the number of small memory pieces (in lists)
+ * 'heap_memory_used'      - total heap memory currently used
+ * @return int[]
+ */
+function memory_get_detailed_stats() {
+  return [];
+}
 
 #endregion
 
@@ -1032,6 +1040,10 @@ function register_kphp_on_warning_callback(callable $callback) {
   set_error_handler($handler);
 }
 
+function register_kphp_on_oom_callback(callable $callback): bool {
+  return false;
+}
+
 /**
  * Like register_kphp_on_warning_callback(), but it is not linked to any runtime error:
  * instead, it allows to get current demangled backtrace at the execution point.
@@ -1064,6 +1076,14 @@ function get_webserver_stats() {
     //in PHP, do nothing;
     //in KPHP it is built-in function that returns buffered webserver information
     return tuple(0, 0, 0, 0);
+}
+
+/**
+ * Get cluster name passed to KPHP server. In PHP does nothing
+ * @return string
+ */
+function get_kphp_cluster_name(): string {
+  return "";
 }
 
 /**
