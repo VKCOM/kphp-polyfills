@@ -1216,6 +1216,11 @@ function set_detect_incorrect_encoding_names_warning(bool $show): void {}
 function set_use_updated_gmmktime(bool $enable): void {}
 
 /**
+ * Enabling demangled stacktrace in json logs
+ */
+function set_json_log_demangle_stacktrace(bool $enable): void {}
+
+/**
  * Gives a ballpark size estimate of the given value, in bytes.
  * Results may differ greatly from KPHP
  */
