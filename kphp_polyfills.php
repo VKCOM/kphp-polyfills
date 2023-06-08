@@ -1313,7 +1313,7 @@ final class KphpDiv {
     return tuple(0, 0);
   }
 
-  public function assignTraceCtx(int $int1, int $int2, int $override_div_id): int {
+  public function assignTraceCtx(int $int1, int $int2, ?int $override_div_id): int {
     return 0;
   }
 
