@@ -1286,4 +1286,132 @@ function ffi_array_get(\FFI\CData $arr, int $index) {
 #endregion
 
 
+#region kphp_tracing
+
+// KPHP tracing is a technology that aims to collect richer variety of data compared to Open telemetry
+// and faster compared to existing tracing SDKs.
+// In fact, every single request is traced in-memory with zero overhead, and probably flushed to disk on finish
+// (if something interesting happens during a script execution, we have its trace — for any given request).
+//
+// KPHP tracing is not implemented for PHP at all (and has no reason to be).
+// In PHP, all tracing functions do nothing.
+
+/**
+ * "Div" represents a piece of a distributed Trace written by a single process handling one request.
+ * It's a set of spans (@see KphpSpan below).
+ * In case of KPHP, when a worker starts handling a PHP request, it starts a div,
+ * which is finished on php script finish (no matter whether it's a general/job/rpc worker).
+ * A term "Div" was invented specially, not to be confused with a word "Trace":
+ * Trace is a set of Div with equal TraceID, it's a distributed entity,
+ * whereas Div is started and finished by a single trace-emitting node.
+ */
+final class KphpDiv {
+  /**
+   * @return tuple(int, int)
+   */
+  public function generateTraceCtxForChild(int $div_id, int $trace_flags) {
+    return tuple(0, 0);
+  }
+
+  public function assignTraceCtx(int $int1, int $int2, int $override_div_id): int {
+    return 0;
+  }
+
+  public function getStartTimestamp(): float {
+    return 0.0;
+  }
+
+  public function getEndTimestamp(): float {
+    return 0.0;
+  }
+}
+
+/**
+ * Span is an atomic element inside a Div.
+ * As opposed to Open telemetry, KPHP does not store any state of spans: it does not have a Span class
+ * containing start/finish timestamps, name, parent, children, attributes, links, etc.
+ * Instead, when any event occurs, it is written to a binary in-memory append-only log (kphp_tracing_binlog.h).
+ * That binlog is a compact representation throughout all trace timeline.
+ *
+ * As a consequence, addAttribute() exists, but getAttribute() does not.
+ * updateName() exists, but getName() does not. And so on.
+ */
+final class KphpSpan {
+  private function __construct() {
+  }
+
+  static public function dummyPhpSpan(): KphpSpan {
+    return new self();
+  }
+
+  public function addAttributeString(string $key, string $value) {}
+  public function addAttributeInt(string $key, int $value) {}
+  public function addAttributeFloat(string $key, float $value) {}
+  public function addAttributeBool(string $key, bool $value) {}
+  public function addAttributeEnum(string $key, int $enum_id, int $value) {}
+
+  public function addLink(\KphpSpan $another) {}
+  public function addEvent(string $name, ?float $timestamp = null): \KphpSpanEvent {
+    return \KphpSpanEvent::dummyPhpSpanEvent();
+  }
+
+  public function updateName(string $title, string $short_desc) {}
+  public function finish(?float $end_timestamp = null) {}
+  public function finishWithError(int $error_code, string $error_msg, ?float $end_timestamp = null) {}
+  public function exclude() {}
+}
+
+/**
+ * Returned by KphpSpan::addEvent(), can accept only attributes (which are also written to binlog).
+ * Actually, it's a special case of a span with kind=KindSpanEvent.
+ */
+final class KphpSpanEvent {
+  private function __construct() {
+  }
+
+  static public function dummyPhpSpanEvent(): KphpSpanEvent {
+    return new self();
+  }
+
+  public function addAttributeString(string $key, string $value) {}
+  public function addAttributeInt(string $key, int $value) {}
+  public function addAttributeFloat(string $key, float $value) {}
+  public function addAttributeBool(string $key, bool $value) {}
+}
+
+// global tracing functions from _functions.txt
+
+function kphp_tracing_init(string $root_span_title): KphpDiv {
+  return new KphpDiv();
+}
+
+function kphp_tracing_set_level(int $trace_level): void {
+}
+
+function kphp_tracing_get_level(): int {
+  return 0;
+}
+
+function kphp_tracing_register_on_finish(callable $cb_should_be_flushed) {}
+function kphp_tracing_register_enums_provider(callable $cb_custom_enums) {}
+function kphp_tracing_register_rpc_details_provider(callable $cb_for_typed, callable $cb_for_untyped) {}
+
+function kphp_tracing_start_span(string $title, string $short_desc, float $start_timestamp): KphpSpan {
+  return KphpSpan::dummyPhpSpan();
+}
+
+function kphp_tracing_get_root_span(): KphpSpan {
+  return KphpSpan::dummyPhpSpan();
+}
+
+function kphp_tracing_get_current_active_span(): KphpSpan {
+  return KphpSpan::dummyPhpSpan();
+}
+
+function kphp_tracing_func_enter_branch(int $branch_num) {}
+
+
+#endregion
+
+
 #endif
