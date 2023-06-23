@@ -925,6 +925,11 @@ class KphpJobWorkerResponseError implements KphpJobWorkerResponse {
   const JOB_CLIENT_MEMORY_LIMIT_ERROR = -1001; // client doesn't have enough memory to accept job response
   const JOB_NOTHING_REPLIED_ERROR = -2001;     // kphp_job_worker_store_response() was not succeeded
 
+  const JOB_STORE_RESPONSE_INCORRECT_CALL_ERROR = -3000;
+  const JOB_STORE_RESPONSE_NOT_ENOUGH_SHARED_MESSAGES_ERROR = -3001;
+  const JOB_STORE_RESPONSE_TOO_BIG_ERROR = -3002;
+  const JOB_STORE_RESPONSE_CANT_SEND_ERROR = -3003;
+
   public function getError(): string {
     return '';
   }
@@ -998,9 +1003,11 @@ function kphp_job_worker_fetch_request(): ?KphpJobWorkerRequest {
 /**
  * Serializes a server job response to a shared memory buffer passing a response back to the caller.
  * Works only when the current KPHP process is launched as a job worker (test for $_SERVER["JOB_ID"] in a PHP entrypoint).
+ * @return int 0 on success, < 0 - on errors. All possible error codes are constants at KphpJobWorkerResponseError
  */
-function kphp_job_worker_store_response(KphpJobWorkerResponse $response): void {
+function kphp_job_worker_store_response(KphpJobWorkerResponse $response): int {
   warning("kphp_job_worker_store_response() should be used in KPHP only");
+  return 0;
 }
 
 #endregion
