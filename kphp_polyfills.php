@@ -397,7 +397,10 @@ function get_running_fork_id(): int {
   return 0;
 }
 
-function curl_exec_concurrently(int $curl_handle, float $timeout = 1.0): ?string {
+/**
+ * @return ?string
+ * */
+function curl_exec_concurrently(int $curl_handle, float $timeout) {
     return null;
 }
 
