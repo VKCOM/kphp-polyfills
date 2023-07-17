@@ -397,6 +397,17 @@ function get_running_fork_id(): int {
   return 0;
 }
 
+/**
+ * @return string|false
+ */
+function curl_exec_concurrently($curl_handle, float $timeout_sec = 1.0) {
+  curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
+  if ($timeout_sec > 0) {
+    curl_setopt($curl_handle, CURLOPT_TIMEOUT_MS, (int)($timeout_sec * 1000));
+  }
+  return curl_exec($curl_handle);
+}
+
 #endregion
 
 
