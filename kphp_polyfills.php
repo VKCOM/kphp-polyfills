@@ -297,7 +297,7 @@ function _php_wait_helper($id) {
   return 0 < $id && $id <= $cnt && $__forked[$id - 1] !== '__already_gotten__';
 }
 
-function wait($id) {
+function wait($id, $timeout = -1.0) {
   global $__forked;
 
   if (!_php_wait_helper($id)) {
