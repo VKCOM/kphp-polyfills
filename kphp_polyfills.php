@@ -1098,7 +1098,7 @@ function kphp_get_runtime_config() {
  * @return float
  */
 function thread_pool_test_load(int $size, int $n, float $a, float $b) {
-    return 42.42;
+    return 0.0;
 }
 
 /** @return tuple(int, int, int, int) */
