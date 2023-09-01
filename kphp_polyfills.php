@@ -1088,6 +1088,18 @@ function kphp_get_runtime_config() {
   // in KPHP it is a built-in function that returns the runtime configuration that was set when the server started
   return null;
 }
+/**
+ * Do test thread pool load
+ * @param int $size count of threads
+ * @param int $n number of calculations per thread
+ * @param float $a first parameter
+ * @param float $b second parameter
+ *
+ * @return float
+ */
+function thread_pool_test_load(int $size, int $n, float $a, float $b) {
+    return 0;
+}
 
 /** @return tuple(int, int, int, int) */
 function get_webserver_stats() {
