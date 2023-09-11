@@ -885,6 +885,14 @@ function memory_get_detailed_stats() {
   return [];
 }
 
+/**
+ * Returns tuple of (allocations_count, allocated_total).
+ * @return tuple(int, int)
+ */
+function memory_get_allocations() {
+  return tuple(0, 0);
+}
+
 #endregion
 
 
