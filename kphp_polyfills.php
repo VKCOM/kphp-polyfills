@@ -1259,6 +1259,13 @@ function set_use_updated_gmmktime(bool $enable): void {}
 function set_json_log_demangle_stacktrace(bool $enable): void {}
 
 /**
+ * Nobody except KPHP team should use this function in production!
+ *
+ * Enables host tag in all inner kphp StatsHouse metrics for next 30 sec
+ */
+function kphp_turn_on_host_tag_in_inner_statshouse_metrics_toggle(): void {}
+
+/**
  * Gives a ballpark size estimate of the given value, in bytes.
  * Results may differ greatly from KPHP
  */
