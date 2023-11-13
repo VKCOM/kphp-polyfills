@@ -1266,6 +1266,14 @@ function set_json_log_demangle_stacktrace(bool $enable): void {}
 function kphp_turn_on_host_tag_in_inner_statshouse_metrics_toggle(): void {}
 
 /**
+ * Nobody except KPHP team should use this function in production!
+ * Enables extended instance_cache metrics by host
+ *
+ * @param callable(string):string $normalization_function
+ */
+function kphp_extended_instance_cache_metrics_init(callable $normalization_function): void {}
+
+/**
  * Gives a ballpark size estimate of the given value, in bytes.
  * Results may differ greatly from KPHP
  */
