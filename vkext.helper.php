@@ -169,9 +169,12 @@ function rpc_queue_push($queue_id, $queries) {
  * @param array $queries
  * @param float $timeout
  * @param bool $ignore_result
+ * @param \RpcRequestsMetrics $requests_metrics
+ * @param bool $need_responses_metrics
  * @return array
  */
-function rpc_tl_query($connection, $queries, $timeout = -1.0, $ignore_result = false) {
+function rpc_tl_query($connection, $queries, $timeout = -1.0,
+                      $ignore_result = false, $requests_metrics = null, $need_responses_metrics = false) {
   return [];
 }
 
@@ -527,9 +530,13 @@ function typed_rpc_tl_query_one($conn, $request, $timeout = -1.0) {
  * @param int $conn
  * @param @tl\RpcFunction[] $requests
  * @param float $timeout
+ * @param bool $ignore_result
+ * @param \RpcRequestsMetrics $requests_metrics
+ * @param bool $need_responses_metrics
  * @return array
  */
-function typed_rpc_tl_query($conn, array $requests, $timeout = 0.0) {
+function typed_rpc_tl_query($conn, $requests, $timeout = 0.0,
+                            $ignore_result = false, $requests_metrics = null, $need_responses_metrics = false) {
   return [];
 }
 
