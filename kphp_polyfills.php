@@ -386,11 +386,11 @@ function rpc_get_synchronously($qid) {
 }
 
 /**
- * RpcRequestsMetrics is a built-in kPHP class. Its instances could be passed
- * into [typed_]rpc_tl_query function. 'get' method returns metrics for all queries
+ * KphpRpcRequestsExtraInfo is a built-in kPHP class. Its instances could be passed
+ * into [typed_]rpc_tl_query function. 'get' method returns extra info for all queries
  * processed in a call to [typed_]rpc_tl_query function.
  */
-final class RpcRequestsMetrics {
+final class KphpRpcRequestsExtraInfo {
   /**
    * @return tuple(int)[]
    */
@@ -403,7 +403,7 @@ final class RpcRequestsMetrics {
  * @param int $resumable_id
  * @return ?tuple(int, float)
  */
-function extract_rpc_response_metrics($resumable_id) {
+function extract_kphp_rpc_response_extra_info($resumable_id) {
   return null;
 }
 
