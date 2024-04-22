@@ -1467,4 +1467,73 @@ function kphp_tracing_func_enter_branch(int $branch_num) {}
 #endregion
 
 
+#region kml
+
+// builtins for KML format
+
+/**
+ * @param float[][] $features_map_matrix
+ * @return float[]|null
+ */
+function kml_xgboost_predict_matrix(string $model_name, $features_map_matrix) {
+  return null;
+}
+
+/**
+ * @param float[] $float_features
+ * @param string[] $cat_features
+ * @return float|null
+ */
+function kml_catboost_predict_vectors(string $model_name, $float_features, $cat_features) {
+  return null;
+}
+
+/**
+ * @param float[] $features_map
+ * @return float|null
+ */
+
+function kml_catboost_predict_ht(string $model_name, $features_map) {
+  return null;
+}
+
+/**
+ * @param float[] $float_features
+ * @param string[] $cat_features
+ * @return float[]|null
+ */
+function kml_catboost_predict_vectors_multi(string $model_name, $float_features, $cat_features) {
+  return null;
+}
+
+/**
+ * @param float[] $features_map
+ * @return float|null
+ */
+function kml_catboost_predict_ht_multi(string $model_name, $features_map) {
+  return null;
+}
+
+function kml_model_exists(string $model_name) : bool {
+  return false;
+}
+
+/**
+ * @return string[]|null
+ */
+function kml_get_feature_names(string $model_name) {
+  return null;
+}
+
+/**
+ * @return string|null
+ */
+function kml_get_custom_property(string $model_name, string $property_name) {
+  return null;
+}
+
+
+#endregion
+
+
 #endif
