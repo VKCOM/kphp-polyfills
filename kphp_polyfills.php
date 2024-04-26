@@ -386,6 +386,28 @@ function rpc_get_synchronously($qid) {
 }
 
 /**
+ * KphpRpcRequestsExtraInfo is a built-in kPHP class. Its instances could be passed
+ * into [typed_]rpc_tl_query function. 'get' method returns extra info for all queries
+ * processed in a call to [typed_]rpc_tl_query function.
+ */
+final class KphpRpcRequestsExtraInfo {
+  /**
+   * @return tuple(int)[]
+   */
+  public function get(): array {
+    return [];
+  }
+}
+
+/**
+ * @param int $resumable_id
+ * @return ?tuple(int, float)
+ */
+function extract_kphp_rpc_response_extra_info($resumable_id) {
+  return null;
+}
+
+/**
  * @param int[] $query_ids
  * @return array
  */
