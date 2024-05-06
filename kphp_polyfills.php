@@ -1475,7 +1475,7 @@ function kphp_tracing_func_enter_branch(int $branch_num) {}
  * @param float[][] $features_map_matrix
  * @return float[]|null
  */
-function kml_xgboost_predict_matrix(string $model_name, $features_map_matrix) {
+function kml_xgboost_predict_matrix(string $model_name, array $features_map_matrix) {
   return null;
 }
 
@@ -1484,7 +1484,7 @@ function kml_xgboost_predict_matrix(string $model_name, $features_map_matrix) {
  * @param string[] $cat_features
  * @return float|null
  */
-function kml_catboost_predict_vectors(string $model_name, $float_features, $cat_features) {
+function kml_catboost_predict_vectors(string $model_name, array $float_features, array $cat_features) {
   return null;
 }
 
@@ -1492,8 +1492,7 @@ function kml_catboost_predict_vectors(string $model_name, $float_features, $cat_
  * @param float[] $features_map
  * @return float|null
  */
-
-function kml_catboost_predict_ht(string $model_name, $features_map) {
+function kml_catboost_predict_ht(string $model_name, array $features_map) {
   return null;
 }
 
@@ -1502,7 +1501,7 @@ function kml_catboost_predict_ht(string $model_name, $features_map) {
  * @param string[] $cat_features
  * @return float[]|null
  */
-function kml_catboost_predict_vectors_multi(string $model_name, $float_features, $cat_features) {
+function kml_catboost_predict_vectors_multi(string $model_name, array $float_features, array $cat_features) {
   return null;
 }
 
@@ -1510,7 +1509,7 @@ function kml_catboost_predict_vectors_multi(string $model_name, $float_features,
  * @param float[] $features_map
  * @return float|null
  */
-function kml_catboost_predict_ht_multi(string $model_name, $features_map) {
+function kml_catboost_predict_ht_multi(string $model_name, array $features_map) {
   return null;
 }
 
