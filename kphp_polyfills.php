@@ -1557,4 +1557,13 @@ function kml_get_custom_property(string $model_name, string $property_name) {
 #endregion
 
 
+// for objects in mixed
+
+/**
+ * @return mixed
+ */
+function to_mixed(object $obj) {
+    return $obj;
+}
+
 #endif
