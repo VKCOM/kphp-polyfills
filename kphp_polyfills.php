@@ -603,6 +603,17 @@ function array_reserve_from(array &$arr, array $base) {
 }
 
 /**
+ * Checks whether an array is internally a vector (a contiguous chunk of memory
+ * with integer keys from 0 to length-1) in KPHP.
+ * Always returns false in PHP because we don't know the internals of PHP.
+ *
+ * Since PHP8, there is the `array_is_list()` function, but it's not exactly what this function returns in KPHP.
+ */
+function array_is_vector(array $arr): bool {
+  return false;
+}
+
+/**
  * array_unset(T[], $key) : T - unset value in array and return it
  */
 function array_unset(array &$arr, $key) {
