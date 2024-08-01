@@ -535,7 +535,7 @@ function typed_rpc_tl_query_one($conn, $request, $timeout = -1.0) {
  * @param bool $need_responses_extra_info
  * @return array
  */
-function typed_rpc_tl_query($conn, $requests, $timeout = 0.0, $ignore_result = false,
+function typed_rpc_tl_query($conn, $requests, $timeout = -1.0, $ignore_result = false,
                             $requests_extra_info = null, $need_responses_extra_info = false) {
   return [];
 }
