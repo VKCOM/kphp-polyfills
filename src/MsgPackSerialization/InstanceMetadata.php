@@ -35,8 +35,7 @@ class InstanceMetadata {
       throw new RuntimeException('add @kphp-serializable phpdoc to class: ' . $this->klass->getName());
     }
 
-    if ($this->klass->isAbstract() || $this->klass->isInterface() ||
-      ($this->klass->getParentClass() && $this->klass->getParentClass()->getProperties())) {
+    if ($this->klass->isAbstract() || $this->klass->isInterface()) {
       throw new RuntimeException('You may not serialize interfaces/abstract classes/polymorphic classes: ' . $this->klass->getName());
     }
 
