@@ -368,6 +368,14 @@ function fetch_int() {
 }
 
 /**
+ * Fetch byte from RPC-buffer, returns [0..255]
+ * @return int
+ */
+function fetch_byte() {
+  return 0;
+}
+
+/**
  * Fetch long from RPC-buffer
  * @return mixed
  */
@@ -380,6 +388,14 @@ function fetch_long() {
  * @return string
  */
 function fetch_string() {
+  return '';
+}
+
+/**
+ * Fetch string in TL2 format from RPC-buffer
+ * @return string
+ */
+function fetch_string2() {
   return '';
 }
 
@@ -416,6 +432,15 @@ function fetch_eof() {
 }
 
 /**
+ * Get current position relative to start of RPC-buffer
+ * @return int
+ */
+function fetch_get_pos() {
+  return 0;
+}
+
+
+/**
  * @param $errno
  * @param $errtext
  */
@@ -429,6 +454,12 @@ function store_int($int) {
 }
 
 /**
+ * @param $int
+ */
+function store_byte($int) {
+}
+
+/**
  * @param $str
  */
 function store_long($str) {
@@ -438,6 +469,12 @@ function store_long($str) {
  * @param $str
  */
 function store_string($str) {
+}
+
+/**
+ * @param $str
+ */
+function store_string2($str) {
 }
 
 /**
