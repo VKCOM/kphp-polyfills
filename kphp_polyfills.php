@@ -520,6 +520,7 @@ function array_merge_into(array &$a, array $another_array) {
   $a = array_merge($a, $another_array);
 }
 
+if (!function_exists('array_find')) {
 /**
  * array_find(T[], fn) : tuple(key, T)
  * @return tuple(int|string|null, any)
@@ -531,6 +532,7 @@ function array_find(array $ar, callable $clbk) {
     }
   }
   return tuple(null, null);
+}
 }
 
 /**
@@ -622,21 +624,21 @@ function array_unset(array &$arr, $key) {
   return $res;
 }
 
-if (!function_exists("array_all")) {
+if (!function_exists('array_all')) {
   /**
-   * @param array $array Target array
-   * @param callable $callable Predicate
-   * @return bool
-   */
-  function array_all(array $array, callable $callable) {
-    foreach ($array as $key => $value) {
-      if (! $callable($value, $key)) {
-        return false;
-      }
+ * @param array $array Target array
+ * @param callable $callable Predicate
+ * @return bool
+ */
+function array_all(array $array, callable $callable) {
+  foreach ($array as $key => $value) {
+    if (! $callable($value, $key)) {
+      return false;
     }
-
-    return true;
   }
+
+  return true;
+}
 }
 
 /**
