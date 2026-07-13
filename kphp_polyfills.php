@@ -622,19 +622,21 @@ function array_unset(array &$arr, $key) {
   return $res;
 }
 
-/**
- * @param array $array Target array
- * @param callable $callable Predicate
- * @return bool
- */
-function array_all(array $array, callable $callable) {
-  foreach ($array as $key => $value) {
-    if (! $callable($value, $key)) {
-      return false;
+if (!function_exists("array_all")) {
+  /**
+   * @param array $array Target array
+   * @param callable $callable Predicate
+   * @return bool
+   */
+  function array_all(array $array, callable $callable) {
+    foreach ($array as $key => $value) {
+      if (! $callable($value, $key)) {
+        return false;
+      }
     }
-  }
 
-  return true;
+    return true;
+  }
 }
 
 /**
