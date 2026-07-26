@@ -326,9 +326,12 @@ function wait_synchronously($id) {
 function wait_concurrently($id) {
   static $waiting = [];
 
+  if (!_php_wait_helper($id)) {
+    return false;
+  }
+
   if (!$waiting[$id]) {
     $waiting[$id] = true;
-    _php_wait_helper($id);
     unset($waiting[$id]);
   } else {
     while ($waiting[$id]) {
@@ -338,6 +341,7 @@ function wait_concurrently($id) {
       }
     }
   }
+  return true;
 }
 
 function wait_queue_create(array $futures): array {
